@@ -59,7 +59,7 @@ Haskell using quotation}
 # Push arrays
 \label{sec:push}
 
-~~~
+~~~ {.haskell}
 data Push sh a = 
   Push ((Shape sh -> a -> M ()) -> M ()) (Shape sh)
 ~~~
