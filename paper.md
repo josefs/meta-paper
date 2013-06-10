@@ -60,19 +60,23 @@ programmer. These contracts helps the programmer understand the
 efficiency of a particular program. They also how precisely when a
 programmer can introduce abstraction without losing any performance.
 
-* All types are monomorphised and unboxed.
+* *All types are monomorphised and unboxed*.
+
+  In particular, expressions of type `Expr Int` will be compiled to
+  `Int#`, `Expr Float` to `Float#`, pairs to unboxed pairs and so
+  forth.
 
   The programmer is free to write polymorphic and overloaded code. But once
   the final Haskell code is generated, all types will be monomorphic and
   unboxed.
 
-* Every function is inlined by default. \TODO{Explain more, and how to
+* *Every function is inlined by default*. \TODO{Explain more, and how to
   prevent inlining}
 
-* Operations on arrays are fused automatically. \TODO{Explain the situation with Pull and Push arrays}
+* *Operations on arrays are fused automatically*. \TODO{Explain the situation with Pull and Push arrays}
 
-* Common subexpression elimination and code motion are applied
-  extensively on the program.
+* *Common subexpression elimination and code motion are applied
+  extensively on the program*.
  
   GHC already does these optimizations to some extent but because of
   the domain specific nature of our library, we can apply these
