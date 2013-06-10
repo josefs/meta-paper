@@ -23,7 +23,7 @@ Contributions:
   Furthermore, several aspects of the implementation of the library
   becomes simpler when using the embedded language approach. In
   particular, many things that are done of the type level can now be
-  one the value level.
+  done the value level.
 
 * We show how we use the technique of combining deep and shallow
   embeddings, building on the work in [@DeepShallow], to implement
@@ -32,8 +32,11 @@ Contributions:
   guarantees.
 
 * We demonstrate a complete case-study, meta-repa, showing the
-  benefits of our approach. We explain the implementation in section
-  \ref{sec:impl}.
+  benefits of our approach. It is a reimplementation of the repa
+  library using the embedded language approach. We explain the
+  implementation in section \ref{sec:impl}. Section
+  \ref{sec:benchmarks} presents benchmarks showing that meta-repa is
+  as fast, or faster, than repa.
 
 * Instead of one array type we have two. We have included push arrays
   [@pusharrays] in our implementation. The result is a vastly simpler
@@ -46,8 +49,45 @@ Contributions:
 \TODO{Compare to programming in repa}
 \TODO{Mandelbrot as an example}
 
+\TODO{Explain that there are two types of arrays, Pull and Push}
 \TODO{Make sure to point out the Expr type and the class Computable}
 \TODO{Also mention the use of Template Haskell}
+
+## Contract towards the programmer
+
+The library meta-repa comes with a set of guarantees towards the
+programmer. These contracts helps the programmer understand the
+efficiency of a particular program. They also how precisely when a
+programmer can introduce abstraction without losing any performance.
+
+* All types are monomorphised and unboxed.
+
+  The programmer is free to write polymorphic and overloaded code. But once
+  the final Haskell code is generated, all types will be monomorphic and
+  unboxed.
+
+* Every function is inlined by default. \TODO{Explain more, and how to
+  prevent inlining}
+
+* Operations on arrays are fused automatically. \TODO{Explain the situation with Pull and Push arrays}
+
+* Common subexpression elimination and code motion are applied
+  extensively on the program.
+ 
+  GHC already does these optimizations to some extent but because of
+  the domain specific nature of our library, we can apply these
+  optimizations more extensively than GHC.
+
+These guarantees and optimizations are possible and practical because
+we are working with a limited domain specific language. When compiling
+a general purpose language, many program optimizations often turn out
+to be pessimizations for certain classes of programs. By constructing
+a smaller language we've made the problem of optimizing programs much
+easier.
+
+In the next sections we will describe how our implementation achieves
+these guarantees. Many of them come for free, as a side effect of how
+we're representing programs.
 
 # Implementation of meta-repa
 \label{sec:impl}
@@ -296,9 +336,10 @@ enumFromTo f t = Push loop (Z :. t - f + 1)
                  )
 ~~~
 
-
+## Stencil computations
 
 # Measurements
+\label{sec:benchmarks}
 
 \TODO{Matrix Multiplication}
 \TODO{Sobel filter}
@@ -307,6 +348,12 @@ enumFromTo f t = Push loop (Z :. t - f + 1)
 \TODO{(Maybe scale up)}
 
 # Discussion
+
+## Summary
+
+\TODO{Pros and cons of the embedded language approach}
+
+## Future work
 
 \TODO{Future work: Implementing data structures vs algorithms}
 
