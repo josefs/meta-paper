@@ -330,9 +330,13 @@ refer to as pull arrays, and push arrays, introduced in
 [@claessen2012expressive]. These two kinds of arrays are complementary
 and have different strength and weakness.
 
-* Pull arrays can efficiently be indexed 
+* Pull arrays can efficiently be indexed efficiently and by extension
+  can also be decomposed into subarrays. Pull arrays also supports
+  pointwise zipping.
 
-* Push arrays can efficiently be concatenated and there are 
+* Push arrays can efficiently be concatenated. Futhermore, they allow
+  sharing computations between different array elements and generating
+  code which writes multiple array elements per loop interation.
 
 ~~~ {.haskell}
 data Push sh a = 
@@ -353,6 +357,9 @@ enumFromTo f t = Push loop (Z :. t - f + 1)
 ~~~
 
 ## Stencil computations
+
+\TODO{Explain how to write efficient stencil computations}
+\TODO{Pull/Push a nice model for Stencils}
 
 # Measurements
 \label{sec:benchmarks}
