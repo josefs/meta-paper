@@ -9,16 +9,18 @@
 # Introduction
 
 In recent years the Haskell community has developed an increasing
-interest in writing programs that perform well.
+interest in writing programs that perform well. Libraries have been developed 
+
+
 
 
 Contributions:
 
 * We present a new methodology for writing high performance Haskell
   programs. We argue for using an embedded domain specific language
-  and generate Haskell from that language. The resulting code will be
-  easier to write for the end user because the domain specific
-  language can be tailored to the 
+  and generate Haskell from that language. Programming in the domain
+  specific language will be easier for the end user because the
+  language can be given a semantics which matches the problem domain.
 
   Furthermore, several aspects of the implementation of the library
   becomes simpler when using the embedded language approach. In
@@ -33,16 +35,16 @@ Contributions:
 
 * We demonstrate a complete case-study, meta-repa, showing the
   benefits of our approach. It is a reimplementation of the repa
-  library using the embedded language approach. We explain the
-  implementation in section \ref{sec:impl}. Section
-  \ref{sec:benchmarks} presents benchmarks showing that meta-repa is
-  as fast, or faster, than repa.
+  [@keller2010regular] library using the embedded language
+  approach. We explain the implementation in section
+  \ref{sec:impl}. Section \ref{sec:benchmarks} presents benchmarks
+  showing that meta-repa is as fast, or faster, than repa.
 
 * Instead of one array type we have two. We have included push arrays
-  [@pusharrays] in our implementation. The result is a vastly simpler
-  library and although the user of our library must now use two
-  different types of arrays we consider the resulting API to be easier
-  to use. We explain the details in section \ref{sec:push}.
+  [@claessen2012expressive] in our implementation. The result is a
+  vastly simpler library and although the user of our library must now
+  use two different types of arrays we consider the resulting API to
+  be easier to use. We explain the details in section \ref{sec:push}.
 
 # Programming in meta-repa
 
@@ -73,7 +75,16 @@ programmer can introduce abstraction without losing any performance.
 * *Every function is inlined by default*. \TODO{Explain more, and how to
   prevent inlining}
 
-* *Operations on arrays are fused automatically*. \TODO{Explain the situation with Pull and Push arrays}
+* *Operations on arrays are fused automatically*.
+
+  Our library has two types of arrays, `Pull` and `Push`, and all
+  operations working on only one of these types will always be fused,
+  as will conversions from `Pull` to `Push`. However, conversions from
+  `Push` to `Pull` are not fused. This exception might seem surprising
+  but we explain why this is the right default in section
+  \ref{sec:push} on Push arrays.
+
+  Fusion can easily be prevented 
 
 * *Common subexpression elimination and code motion are applied
   extensively on the program*.
@@ -357,17 +368,38 @@ enumFromTo f t = Push loop (Z :. t - f + 1)
 
 \TODO{Pros and cons of the embedded language approach}
 
-## Future work
-
-\TODO{Future work: Implementing data structures vs algorithms}
-
 # Related work
+
 
 \TODO{Related work}
 \TODO{Nikola}
 \TODO{Repa}
 \TODO{Deep vs Shallow}
 \TODO{Little languages in LISP}
+
+Domain specific languages have become increasingly popular over the
+last decade, although they have a long and rich history
+[@Bentley:1986:PPL:6424.315691].
+
+Haskell has proved very effective as a host language for *embedding*
+domain specific languages.
+
+
+Henning Thielemann has developed a family of libraries for audio
+processing, called "synthesizer" [@synthesizer]. One particular member
+in this family is "synthesizer-llvm" [@synthesizer-llvm] which employs
+runtime code generation using LLVM to achieve high performance. This
+methodology is similar in spirit to our approach but we use
+compile-time code generation and generate Haskell. For our purposes,
+generating Haskell was sufficient from a performance perspective and
+very convenient as Haskell allows us to generate relatively high
+level code compared to LLVM.
+
+The general design philosophy seems to be similar to ours.
+
+The guarantee of fusion for arrays in meta-repa is the same as in
+Feldspar [@axelsson2011design] and repa. It stems from the
+implementation technique pioneered by Feldspar.
 
 Push arrays were first introduced in Obsidian
 [@claessen2012expressive] and has subsequently been implemented in
