@@ -9,8 +9,9 @@
 # Introduction
 
 In recent years the Haskell community has developed an increasing
-interest in writing programs that perform well. Libraries have been developed 
+interest in writing programs which perform well. Libraries have been developed 
 
+Even though GHC is a terrific optimizing compiler, by necessity it sometimes fall short of generating the code that 
 
 
 
@@ -384,6 +385,17 @@ last decade, although they have a long and rich history
 Haskell has proved very effective as a host language for *embedding*
 domain specific languages.
 
+One particular feature of the methodology presented in this paper is
+that it enables library writers to easily write their own
+optimizations so that they can be sure to get the performance they
+want. Recently GHC has been equipped with a plugin mechanism which
+allows for easily adding new optimization passes. While the plugin
+facility is very useful it will have a hard time providing the kind of
+performance guarantees which our library offers. The reason is because
+it is compiling all of Haskell and due to Haskell's generality,
+providing the the same kind of performance guarantees is an
+undecidable problem. Again, formulating a limited, domain specific
+language pays off by making the problem of optimization feasible.
 
 Henning Thielemann has developed a family of libraries for audio
 processing, called "synthesizer" [@synthesizer]. One particular member
