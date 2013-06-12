@@ -260,7 +260,8 @@ data Z
 data sh :. e
 data Shape sh where
   Z :: Shape Z
-  (:.) :: Shape sh -> Expr Length -> Shape (sh :. Expr Length)
+  (:.) :: Shape sh -> Expr Length
+       -> Shape (sh :. Expr Length)
 ~~~
 
 Defining the `Shape` type like a GADT makes programming with is a
@@ -279,15 +280,19 @@ size (sh :. l) = size sh * l
 
 toIndex :: Shape sh -> Shape sh -> Expr Index
 toIndex Z _ = 0
-toIndex (sh1 :. sh2) (i1 :. i2) = toIndex sh1 i1 * sh2 + i2
+toIndex (sh1 :. sh2) (i1 :. i2)
+  = toIndex sh1 i1 * sh2 + i2
 
 intersectDim :: Shape sh -> Shape sh -> Shape sh
 intersectDim Z Z = Z
-intersectDim (sh1 :. n1) (sh2 :. n2) = (intersectDim sh1 sh2 :. (min n1 n2))
+intersectDim (sh1 :. n1) (sh2 :. n2)
+  = (intersectDim sh1 sh2 :. (min n1 n2))
 
-inRange :: Shape sh -> Shape sh -> Shape sh -> Expr Bool
+inRange :: Shape sh -> Shape sh -> Shape sh
+        -> Expr Bool
 inRange Z Z Z = true
-inRange (shL :. l) (shU :. u) (sh :. i) = l <= i && i < u && inRange shL shU sh
+inRange (shL :. l) (shU :. u) (sh :. i)
+  = l <= i && i < u && inRange shL shU sh
 ~~~
 
 \TODO{What Shape functions are interesting to show}
@@ -299,16 +304,19 @@ arguments of type `Shape` but whose result are of type `Shape`.
 ~~~{.haskell}
 class Shapely sh where
   mkShape :: Expr Index -> Shape sh
-  toShape :: Int -> Expr (UArray Int Length) -> Shape sh
+  toShape :: Int -> Expr (UArray Int Length)
+          -> Shape sh
 
 instance Shapely Z where
   mkShape _ = Z
   toShape _ _ = Z
 
-instance Shapely sh => Shapely (sh :. Expr Length) where
+instance Shapely sh => Shapely (sh :. Expr Length)
+    where
   mkShape i = mkShape i :. i
   toShape i arr
-      = toShape (i+1) arr :. (readIArray arr (P.fromIntegral i))
+    = toShape (i+1) arr :.
+      (readIArray arr (P.fromIntegral i))
 ~~~
 
 
