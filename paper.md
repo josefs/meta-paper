@@ -413,7 +413,31 @@ instance Functor (Push sh) where
 
 ## Summary
 
-\TODO{Pros and cons of the embedded language approach}
+Pros
+
+* More natural code
+* Performance guarantees
+* Inlining and fusion for free
+* Domain specific optimizations
+* Value level programming instead of type level programming
+
+Cons
+
+* Having to implement an embedded language requires extra code
+
+* Some types become a little more awkward. For instance one has to
+  write `Expr Int` instead of `Int`.
+
+## Future work
+
+The library meta-repa is only the first step towards a framework for
+writing high performance Haskell programs. We hope to be able to build
+on meta-repa to support application areas different from parallel
+array programming. However, it is not clear that there will be one
+single language which will be able to handle all use cases. It might
+be that new languages have to be developed to cater for needs in
+different domains. Further research is needed to determine the best
+way to use the methodology presneted in this paper.
 
 # Related work
 
