@@ -29,10 +29,10 @@ Contributions:
   done the value level.
 
 * We show how we use the technique of combining deep and shallow
-  embeddings, building on the work in [@DeepShallow], to implement
-  arrays. This technique helps limit the size of the core language,
-  implement fusion for arrays for free and give strong optimization
-  guarantees.
+  embeddings, building on the work in [@svenningsson12:DeepShallow],
+  to implement arrays. This technique helps limit the size of the core
+  language, implement fusion for arrays for free and give strong
+  optimization guarantees.
 
 * We demonstrate a complete case-study, meta-repa, showing the
   benefits of our approach. It is a reimplementation of the repa
@@ -211,11 +211,11 @@ There are a couple of things to note about the core language:
 * It is monomorphic. Having a monomorphic language is important to be
   able to always generate unboxed Haskell code. 
 
-  Having a monomorphic core language does not stop us from writing
-  polymorpic programs, using overloading. We can write functions which
-  work for several different base types. The only restriction is that
-  when compiling a meta-repa program, all types must be instantiated
-  to monomorphic types.
+  Having a monomorphic core language does not stop the programmer from
+  writing polymorpic programs or using overloading. Functions can be
+  written which work for several different base types. The only
+  restriction is that when compiling a meta-repa program, all types
+  must be instantiated to monomorphic types.
 
 After the HOAS representation is generated, it is translated to a
 first order representation. This representation is used for performing
@@ -229,6 +229,7 @@ common subexpression elimination and loop-invariant code motion.
 \TODO{No observable sharing}
 
 ## Shallow Embeddings for Arrays
+\label{sec:shallow}
 
 \TODO{Pull arrays}
 \TODO{Fusion for free}
@@ -329,22 +330,39 @@ Haskell using quotation}
 # Push arrays
 \label{sec:push}
 
-The interface meta-repa is very closely modelled after repa, but some
-things have been consiously made different. The most significant
-divergence is the choice of having two kinds of arrays. The repa library contains a refinement of delayed array.
+The interface meta-repa is heavily inspired by repa, but some things
+have been consiously made different. The most significant divergence
+is the choice of having two kinds of arrays.
 
-In meta-repa there are two kinds of arrays, delayed arrays, which we
-refer to as pull arrays, and push arrays, introduced in
-[@claessen2012expressive]. These two kinds of arrays are complementary
-and have different strength and weakness.
+In meta-repa there are two types of arrays, delayed arrays. One of
+these types, pull arrays, were already presented in section
+\ref{sec:shallow}. The other type is push arrays, a notion originally
+introduced in [@claessen2012expressive]. Push arrays shares many
+significant properties with pull arrays: they can be fused just as
+easily, are efficiently parallelizeable, and have a `Functor`
+instance.
 
-* Pull arrays can efficiently be indexed efficiently and by extension
+However, push arrays are also in many ways complementary to pull
+arrays. The two types have different strengths:
+
+* Pull arrays can be indexed efficiently and by extension
   can also be decomposed into subarrays. Pull arrays also supports
   pointwise zipping.
 
 * Push arrays can efficiently be concatenated. Futhermore, they allow
   sharing computations between different array elements and generating
   code which writes multiple array elements per loop interation.
+
+It's worth noting that both pull- and push arrays can be altered to
+efficiently support some of the features that they lack, when defined
+in their simplest form. However, based on our experience, these
+alterations lose the strong optimization guarantees; either fusion is
+lost, or sometime the generated code is slow.  In meta-repa we have
+specifically chosen to keep the implementation of the arrays simple
+and to provide strong guarantees towards the programmer about what
+optimizations can be expected.
+
+Push arrays are implemented as follows:
 
 ~~~ {.haskell}
 data Push sh a = 
@@ -354,14 +372,27 @@ data Push sh a =
 The second argument to the Push constructor is the extent of the
 array. The first argument is a monadic computation which will write an
 array to memory. The computation is parameterized by the operation
-used to write to memory.
+used to write to memory. 
 
 ~~~ {.haskell}
-enumFromTo :: Expr Int -> Expr Int -> Push (Z :. Expr Int) (Expr Int)
+enumFromTo :: Expr Int -> Expr Int
+           -> Push (Z :. Expr Int) (Expr Int)
 enumFromTo f t = Push loop (Z :. t - f + 1)
   where loop w = parM (t - f + 1) (\i ->
   	       	   w (Z :. i) (i + f)
                  )
+
+instance Functor (Push sh) where
+  fmap f (Push m sh) = Push n sh
+    where n w = m (\i a -> w i (f a))
+
+(+.+) :: Push (sh:.Expr Length) a
+      -> Push (sh:.Expr Length) a
+      -> Push (sh:.Expr Length) a
+(Push m1 (sh1:.l1)) +.+ (Push m2 (sh2:.l2))
+    = Push m (sh1:.(l1 + l2))
+  where m k = m1 k >>
+              m2 (\(sh:.i) a -> k (sh:.(i+l1)) a)
 ~~~
 
 ## Stencil computations
