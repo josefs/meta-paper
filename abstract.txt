@@ -1,0 +1,19 @@
+This paper argues for a new methodology for writing high performance
+Haskell programs by using Embedded Domain Specific Languages. 
+
+We exemplify the methodology by describing a complete library,
+meta-repa, which is a reimplementation of parts of the repa
+library. The paper describes the implementation of meta-repa and
+contrasts it with the standard approach to writing high performance
+libraries. We conclude that even though the embedded language approach
+has an initial cost of defining the language and some syntactic
+overhead it gives a more natural programming model, stronger
+performance guarantees, better control over optimizations, simpler
+implementation of fusion and inlining and allows for moving type level
+programming down to value level programming in some cases. We also
+provide benchmarks showing that meta-repa is as fast, or faster, than
+repa.
+
+Furthermore, meta-repa also includes push arrays and we demonstrate
+their usefulness for writing certain high performance kernels such as
+FFT.
