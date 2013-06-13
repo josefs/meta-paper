@@ -377,9 +377,10 @@ data Push sh a =
 
 The second argument to the `Push` constructor is the extent of the
 array. The first argument is a monadic computation which will write an
-array to memory. The computation is parameterized by the operation
-used to write to memory. Parameterizing over the writing operation is
-what gives push arrays their flexibility.
+array to memory. We refer to this computation as the kernel of the
+array. The kernel is parameterized by the operation used to write
+to memory. Parameterizing over the writing operation is what gives
+push arrays their flexibility.
 
 Here are some example functions on push arrays.
 
@@ -405,32 +406,36 @@ instance Functor (Push sh) where
 ~~~
 
 The function `enumFromTo` is similar to the standard Haskell function
-on lists with the same name. The local function `loop` iterates
-through the elements by means of a parallel for-loop.
+on lists with the same name. The kernel `loop` is defined in terms of
+a parallel for-loop which writes each element.
 
 Just like pull arrays, push arrays can be made an instance of the type
-class `Functor` as shown in the code above. 
+class `Functor` as shown in the code above. The kernel of the result
+array simply calls the kernel of the argument array but modifies the
+write function such that the elements get transformed before being
+written.
 
 The operator `+.+` is a good example of the benefits with push
 arrays. It defines concatenation along the final dimension of two push
 arrays. (The arrays must have the same size in all the other
-dimensions, something which is not checked.) The code for the
-resulting push array is simply sequential composition of the code for
-the two argument arrays. In the common case this will mean that the
-final array is written using two loops, each writing to its own part
-of the array. This should be compared the code generated from
+dimensions, something which is not checked.) The kernel of the
+resulting push array is simply sequential composition of the kernels
+for the two argument arrays. In the common case this will mean that
+the final array is written using two loops, each writing to its own
+part of the array. This should be compared the code generated from
 concatenation on pull array, which is a single loop containing a
 branch which checks which argument array to read from. Concatenation
 for push arrays has effectively moved the conditional out of the loop,
 a big win in term of performance. It should be added that an even
-better implementation would have been to use parallel composition
-instead of sequential composition. However, our current runtime system
-doesn't support that. There is still room for improvements.
+better implementation of concatenation would have been used parallel
+composition instead of sequential composition. However, our current
+runtime system doesn't support that. There is still room for
+improvements.
 
 ## FFT
 
 One example algorithm where push arrays have proven valueable is FFT.
-Below is the relevant bits of our implementation, gently beautified
+Below are the relevant bits of our implementation, gently beautified
 for presentation purposes.
 
 ~~~
@@ -516,7 +521,7 @@ array programming. However, it is not clear that there will be one
 single language which will be able to handle all use cases. It might
 be that new languages have to be developed to cater for needs in
 different domains. Further research is needed to determine the best
-way to use the methodology presneted in this paper.
+way to use the methodology presented in this paper.
 
 # Related work
 
