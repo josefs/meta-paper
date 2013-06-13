@@ -371,6 +371,12 @@ specifically chosen to keep the implementation of the arrays simple
 and to provide strong guarantees towards the programmer about what
 optimizations can be expected.
 
+Giving a full account of push arrays falls outside the scope of this
+paper. The interested reader is refered to [@claessen2012expressive]
+where push arrays were introduced. However, we will present enough
+detail to get an appreciation for why they are useful for the purpose
+of high performance Haskell programming.
+
 Push arrays are implemented as follows:
 
 ~~~ {.haskell}
@@ -379,11 +385,11 @@ data Push sh a =
 ~~~
 
 The second argument to the `Push` constructor is the extent of the
-array. The first argument is a monadic computation which will write an
-array to memory. We refer to this computation as the kernel of the
-array. The kernel is parameterized by the operation used to write
-to memory. Parameterizing over the writing operation is what gives
-push arrays their flexibility.
+array. The first argument is a monadic computation which, when run,
+will write the array to memory. We refer to this computation as the
+kernel of the array. The kernel is parameterized by the operation used
+to write to memory. Parameterizing over the writing operation is what
+gives push arrays their flexibility.
 
 Here are some example functions on push arrays.
 
