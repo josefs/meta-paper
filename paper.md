@@ -424,7 +424,50 @@ doesn't support that. There is still room for improvements.
 
 ## FFT
 
-One example algorithm where push arrays have proven valueable is FFT. 
+One example algorithm where push arrays have proven valueable is FFT.
+Below is the relevant bits of our implementation, gently beautified
+for presentation purposes.
+
+~~~
+fft :: (Computable a, Num a, Storable (Internal a))
+    => Pull DIM1 a -> Pull DIM1 a -> Pull DIM1 a
+fft ws vs = forLoop (ilog2 $ length1 vs) vs stage
+  where
+    stage s xs = freezeToVector $
+        chnk (arrayLength xs .>>. s)
+             (butterfly (ixMap (.<<. s) ws)) xs
+
+butterfly :: (Computable a, Num a)
+          => Pull DIM1 a -> Pull DIM1 a
+          -> Push DIM1 a
+butterfly ws vs = unhalve $ toPushS $ 
+                  zipWith3 dft2 ws ys zs
+  where
+    (ys,zs) = halve vs
+
+unhalve :: (Computable a)
+        => Push DIM1 (a,a) -> Push DIM1 a
+unhalve (Push f (Z :. l))
+    = Push (f . spread) (Z :. l * 2)
+  where spread f (Z :. ix) (a1,a2)
+          = f (Z :. ix) a1 >> f (Z :. (ix+l)) a2
+~~~
+
+The function `fft` is a Cooley-Tukey radix-2 decimation in frequency
+algorithm. There are many details here which are not important for the
+purpose of the current discussion and so we leave them out. The
+essential point is the function `unhalve` which is used to implement
+the butterfly network. It takes a push array of pairs and flattens it
+such that the first half of the resulting push array contains all the
+first components of the pairs and the second half the second
+components. The crucial bit is that the computation of the pair can be
+shared and that the two components can be written in the same loop
+iteration. It is not possible to express this kind of sharing using
+pull arrays alone.
+
+In section \ref{sec:benchmarks} we present benchmarks showing that
+using push arrays translates to a real speed advantage.
+
 
 ## Stencil computations
 
@@ -517,5 +560,10 @@ implementation technique pioneered by Feldspar.
 Push arrays were first introduced in Obsidian
 [@claessen2012expressive] and has subsequently been implemented in
 Feldspar [@axelsson2011design] and Nikola [@mainland2010nikola].
+
+# Acknowledgements
+
+The FFT implementation is a port from a Feldspar implementation
+written by Anders Persson.
 
 # References
