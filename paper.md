@@ -2,10 +2,6 @@
 % Johan Ankner; Josef Svenningsson
 %
 
-# Abstract
-
-\TODO{Abstract}
-
 # Introduction
 
 In recent years the Haskell community has developed an increasing
