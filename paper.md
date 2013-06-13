@@ -503,6 +503,32 @@ version 7.6.1 and LLVM version 2.9. The package criterion [@criterion]
 has been used to perform the measurements and the times in the table
 are the mean times reported by criterion.
 
+\begin{figure*}[t]
+\begin{tabular}{|l||l|l||l|l||l|l|}
+\hline
+ & \multicolumn{2}{c||}{no \tt -threaded} & \multicolumn{2}{c||}{\tt -N1} & \multicolumn{2}{c|}{\tt -N4}\\
+\hline
+benchmark & meta  & repa  & meta  & repa  & meta  & repa \\
+\hline
+matrix100 & 708.5684 us & 986.2883 us & 817.5255 µs & 1.164313 ms & 252.8681 us & 470.2105 us \\
+\hline
+matrix500 & 85.49098 ms & 92.95946 ms &  85.75845 ms &  93.28728 ms & 21.77168 ms & 23.77432 ms \\
+\hline
+matrix1000 & 706.9690 ms & 739.6758 ms & 708.3879 ms & 741.0649 ms & 179.1465 ms & 189.0575 ms \\
+\hline
+blur-large & 327.2941 ms & 318.8542 ms & 327.8346 ms & 348.8333 ms & 83.81088 ms & 108.0091 ms \\
+\hline
+sobel-large & 72.23000 ms & 52.17829 ms & 72.99609 ms & 54.15539 ms & 19.64092 ms & 17.28642 ms \\
+\hline
+fft-small & 3.437408 ms & 13.49565 ms &  3.824134 ms & 147.7129 ms & 1.382004 ms & 190.7312 ms \\
+\hline
+fft-medium & 15.51583 ms & 57.02767 ms & 16.79921 ms & 589.5525 ms & 5.415479 ms & 767.9146 ms \\
+\hline
+fft-large & 32.99549 ms & 117.4556 ms & 36.49858 ms & 1.185318 s & 11.14325 ms & 1.532703 s \\
+\hline
+\end{tabular}
+\end{figure*}
+
 \TODO{Matrix Multiplication}
 \TODO{Sobel filter}
 \TODO{Blur}
