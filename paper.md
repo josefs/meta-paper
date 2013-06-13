@@ -438,6 +438,7 @@ runtime system doesn't support that. There is still room for
 improvements.
 
 ## FFT
+\label{sec:fft}
 
 One example algorithm where push arrays have proven valueable is FFT.
 Below are the relevant bits of our implementation, gently beautified
@@ -492,14 +493,8 @@ using push arrays translates to a real speed advantage.
 # Measurements
 \label{sec:benchmarks}
 
-All measurements have been performed on a machine with a four core
-Intel Core i7-3770K processor clocked at 3.5 GHz and with 16 Gb of
-RAM, running Ubuntu 12.04.1. All programs have been compiled with GHC
-version 7.6.1 and LLVM version 2.9. The package criterion [@criterion]
-has been used to perform the measurements and the times in the table
-are the mean times reported by criterion.
-
-\begin{figure*}[t]
+\begin{table*}[t]
+\center
 \begin{tabular}{|l||l|l||l|l||l|l|}
 \hline
  & \multicolumn{2}{c||}{no \tt -threaded} & \multicolumn{2}{c||}{\tt -N1} & \multicolumn{2}{c|}{\tt -N4}\\
@@ -512,9 +507,9 @@ matrix500 & 85.49098 ms & 92.95946 ms &  85.75845 ms &  93.28728 ms & 21.77168 m
 \hline
 matrix1000 & 706.9690 ms & 739.6758 ms & 708.3879 ms & 741.0649 ms & 179.1465 ms & 189.0575 ms \\
 \hline
-blur-large & 327.2941 ms & 318.8542 ms & 327.8346 ms & 348.8333 ms & 83.81088 ms & 108.0091 ms \\
+blur & 327.2941 ms & 318.8542 ms & 327.8346 ms & 348.8333 ms & 83.81088 ms & 108.0091 ms \\
 \hline
-sobel-large & 72.23000 ms & 52.17829 ms & 72.99609 ms & 54.15539 ms & 19.64092 ms & 17.28642 ms \\
+sobel & 72.23000 ms & 52.17829 ms & 72.99609 ms & 54.15539 ms & 19.64092 ms & 17.28642 ms \\
 \hline
 fft-small & 3.437408 ms & 13.49565 ms &  3.824134 ms & 147.7129 ms & 1.382004 ms & 190.7312 ms \\
 \hline
@@ -523,12 +518,58 @@ fft-medium & 15.51583 ms & 57.02767 ms & 16.79921 ms & 589.5525 ms & 5.415479 ms
 fft-large & 32.99549 ms & 117.4556 ms & 36.49858 ms & 1.185318 s & 11.14325 ms & 1.532703 s \\
 \hline
 \end{tabular}
-\end{figure*}
+\label{tab:benchmarks}
+\caption{Performance measurements comparing meta-repa with repa}
+\end{table*}
 
-\TODO{Matrix Multiplication}
-\TODO{Sobel filter}
-\TODO{Blur}
-\TODO{FFT}
+Table \ref{tab:benchmarks} presents benchmarks comparing the
+performance of meta-repa with repa. All measurements have been
+performed on a machine with a four core Intel Core i7-3770K processor
+clocked at 3.5 GHz and with 16 Gb of RAM, running Ubuntu 12.04.1. All
+programs have been compiled with GHC version 7.6.1 and LLVM version
+2.9. The package criterion [@criterion] has been used to perform the
+measurements and the times in the table are the mean times reported by
+criterion. The version of the repa library and the repa-algorithms
+library is 3.2.3.1. All benchmarks was compiled with the flags recommended by the repa documentation: `-Odph -rtsopts -threaded -fno-liberate-case -funfolding-use-threshold1000 -funfolding-keeness-factor1000 -fllvm -optlo-O3`. 
+
+The measurements are divided into three different categories: "no
+`-threaded`", "`-N1`" and "`-N4`". The category "no `-threaded`" means
+that the flag `-threaded` was left out when compiling the benchmarks,
+making them run without the parallel runtime system. The main reason
+for including this category is the fft benchmarks which we discuss
+below. The categories "`-N1`" and "`-N4`" means that the benchmarks
+where run with the corresponding runtime flag to indicate how many
+processes they should be run with. The "`-N1`" category only uses one
+process but gives an indication of the penalty of running with the
+parallel runtime system compared to the "no `-threaded`" category.
+
+The benchmarks matrix100, matrix500 and matrix1000 are matrix
+multiplication of two matrices of sizes $100 \times 100$, $500 \times
+500$ and $1000 \times 1000$ respectively. Blur and sobel are two
+stencil operations on two-dimensional images. The blur stencil has
+size $5 \times 5$ while the sobel stencil is $3 \times 3$. Both
+benchmarks have been run on a png image of size $3000 \times 2400$
+with eight bit color depth. Finally, the benchmarks fft-small, -medium
+and -large runs FFT on a randomized, complex valued, one-dimensional
+array of length $2^{16}$, $2^{17}$ and $2^{18}$ respectively.
+
+In the matrix multiplication benchmarks meta-repa has a small but
+consistent advantage over repa. Both implementations scales well to
+four cores. The blur benchmark exhibits a peculiar behaviour. Without
+the `-threaded` flag the repa library has a slight advantage while the
+reverse is true when using the parallel runtime system. For the sobel
+benchmark the repa library is consistently ahead. The FFT benchmarks
+seem to exhibit a bug in the repa library. When compiled using the
+parallel runtime it shows really poor performance. For this reason we
+included the sequential benchmark which shows more reasonable running
+times. However, meta-repa still outperforms repa by almost a factor of
+four due to the use of push arrays, as explained in section
+\ref{sec:fft}.
+
+The conclusion we draw from these measurements is that the methodology
+we've used when developing meta-repa is very fruitful. Our library is
+on par with, and in some cases even beats repa, which is a mature
+library for high performance computing developed over several years.
 
 # Discussion
 
