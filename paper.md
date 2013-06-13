@@ -510,7 +510,7 @@ are the mean times reported by criterion.
 \hline
 benchmark & meta  & repa  & meta  & repa  & meta  & repa \\
 \hline
-matrix100 & 708.5684 us & 986.2883 us & 817.5255 µs & 1.164313 ms & 252.8681 us & 470.2105 us \\
+matrix100 & 708.5684 us & 986.2883 us & 817.5255 us & 1.164313 ms & 252.8681 us & 470.2105 us \\
 \hline
 matrix500 & 85.49098 ms & 92.95946 ms &  85.75845 ms &  93.28728 ms & 21.77168 ms & 23.77432 ms \\
 \hline
