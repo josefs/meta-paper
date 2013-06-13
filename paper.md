@@ -240,6 +240,8 @@ common subexpression elimination and loop-invariant code motion.
 \TODO{Pull arrays}
 \TODO{Fusion for free}
 
+## From type level to value level programming
+
 \TODO{The Shape class vs the Shape GADT}
 
 In repa, the type of shapes of an array is represented by a type class
@@ -325,6 +327,7 @@ instance Shapely sh => Shapely (sh :. Expr Length)
     = toShape (i+1) arr :.
       (readIArray arr (P.fromIntegral i))
 ~~~
+
 
 
 ## Compilation to Haskell
@@ -487,11 +490,17 @@ using push arrays translates to a real speed advantage.
 # Measurements
 \label{sec:benchmarks}
 
+All measurements have been performed on a machine with a four core
+Intel Core i7-3770K processor clocked at 3.5 GHz and with 16 Gb of
+RAM, running Ubuntu 12.04.1. All programs have been compiled with GHC
+version 7.6.1 and LLVM version 2.9. The package criterion [@criterion]
+has been used to perform the measurements and the times in the table
+are the mean times reported by criterion.
+
 \TODO{Matrix Multiplication}
 \TODO{Sobel filter}
 \TODO{Blur}
 \TODO{FFT}
-\TODO{(Maybe scale up)}
 
 # Discussion
 
@@ -574,6 +583,7 @@ Feldspar [@axelsson2011design] and Nikola [@mainland2010nikola].
 # Acknowledgements
 
 The FFT implementation is a port from a Feldspar implementation
-written by Anders Persson.
+written by Anders Persson. Thanks to Emil Axelsson for suggesting to
+use GADTs to represent the `Shape` type.
 
 # References
