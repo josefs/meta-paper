@@ -222,6 +222,7 @@ first order representation. This representation is used for performing
 domain specific optimizations. We have implemented two optimizations:
 common subexpression elimination and loop-invariant code motion.
 
+\TODO{Describe the monad and what operations it provides}
 \TODO{Performance guarantees}
 \TODO{Inlining for free}
 \TODO{Domain specific optimizations, CSE and loop-invariant code motion.}
@@ -369,10 +370,13 @@ data Push sh a =
   Push ((Shape sh -> a -> M ()) -> M ()) (Shape sh)
 ~~~
 
-The second argument to the Push constructor is the extent of the
+The second argument to the `Push` constructor is the extent of the
 array. The first argument is a monadic computation which will write an
 array to memory. The computation is parameterized by the operation
-used to write to memory. 
+used to write to memory. Parameterizing over the writing operation is
+what gives push arrays their flexibility.
+
+Here are some example functions on push arrays.
 
 ~~~ {.haskell}
 enumFromTo :: Expr Int -> Expr Int
@@ -394,6 +398,33 @@ instance Functor (Push sh) where
   where m k = m1 k >>
               m2 (\(sh:.i) a -> k (sh:.(i+l1)) a)
 ~~~
+
+The function `enumFromTo` is similar to the standard Haskell function
+on lists with the same name. The local function `loop` iterates
+through the elements by means of a parallel for-loop.
+
+Just like pull arrays, push arrays can be made an instance of the type
+class `Functor` as shown in the code above. 
+
+The operator `+.+` is a good example of the benefits with push
+arrays. It defines concatenation along the final dimension of two push
+arrays. (The arrays must have the same size in all the other
+dimensions, something which is not checked.) The code for the
+resulting push array is simply sequential composition of the code for
+the two argument arrays. In the common case this will mean that the
+final array is written using two loops, each writing to its own part
+of the array. This should be compared the code generated from
+concatenation on pull array, which is a single loop containing a
+branch which checks which argument array to read from. Concatenation
+for push arrays has effectively moved the conditional out of the loop,
+a big win in term of performance. It should be added that an even
+better implementation would have been to use parallel composition
+instead of sequential composition. However, our current runtime system
+doesn't support that. There is still room for improvements.
+
+## FFT
+
+One example algorithm where push arrays have proven valueable is FFT. 
 
 ## Stencil computations
 
