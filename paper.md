@@ -73,8 +73,13 @@ programmer can introduce abstraction without losing any performance.
   the final Haskell code is generated, all types will be monomorphic and
   unboxed.
 
-* *Every function is inlined by default*. \TODO{Explain more, and how to
-  prevent inlining}
+* *Every function is inlined by default*. 
+
+  In high performance code, inlining functions is the right default
+  behaviour and generally increases the performance a lot. When the
+  programmer wants to prevent inlining, for whatever reason, it is
+  simple to create a locally defined function with the `let_`
+  combinator provided by our library.
 
 * *Operations on arrays are fused automatically*.
 
