@@ -730,7 +730,10 @@ programs have been compiled with GHC version 7.6.1 and LLVM version
 2.9. The package criterion [@criterion] has been used to perform the
 measurements and the times in the table are the mean times reported by
 criterion. The version of the repa library and the repa-algorithms
-library is 3.2.3.1. All benchmarks was compiled with the flags recommended by the repa documentation: `-Odph -rtsopts -threaded -fno-liberate-case -funfolding-use-threshold1000 -funfolding-keeness-factor1000 -fllvm -optlo-O3`. 
+library is 3.2.3.1. All benchmarks was compiled with the flags
+recommended by the repa documentation: `-Odph` `-rtsopts` `-threaded`
+`-fno-liberate-case` \newline `-funfolding-use-threshold1000` \newline
+`-funfolding-keeness-factor1000` `-fllvm` `-optlo-O3`.
 
 The measurements are divided into three different categories: "no
 `-threaded`", "`-N1`" and "`-N4`". The category "no `-threaded`" means
