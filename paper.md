@@ -317,6 +317,12 @@ data Expr a where
   IterateWhile :: Expr (s -> Bool) -> Expr (s -> s)
                -> Expr s -> Expr s
 
+  ReadIArray :: Storable a =>
+                Expr (UArray Int a) -> Expr Int
+             -> Expr a
+  ArrayLength :: Storable a =>
+                 Expr (UArray Int a) -> Expr Int
+
   Return :: Expr a -> Expr (IO a)
   Bind   :: Expr (IO a) -> Expr (a -> IO b)
          -> Expr (IO b)
@@ -328,11 +334,6 @@ data Expr a where
   RunMutableArray :: Storable a =>
                      Expr (IO (IOUArray Int a))
                   -> Expr (UArray Int a)
-  ReadIArray :: Storable a =>
-                Expr (UArray Int a) -> Expr Int
-             -> Expr a
-  ArrayLength :: Storable a =>
-                 Expr (UArray Int a) -> Expr Int
 
   NewArray   :: Storable a =>
                 Type a -> Expr Int
@@ -345,7 +346,6 @@ data Expr a where
              -> Expr Int -> Expr a -> Expr (IO ())
   ParM       :: Expr Int -> Expr (Int -> IO ())
              -> Expr (IO ())
-  Skip       :: Expr (IO ())
 \end{verbatim}
 \label{fig:expr}
 \caption{A representative subset of the \texttt{Expr} data type}
@@ -360,7 +360,9 @@ The first two constructors `Var` and `Value` are used for compilation
 and evaluation and will never be present in trees produced by code
 written in meta-repa.
 
-The constructors `Lambda` and `App` together with the constructs for binary operators and comparisons form a small functional language for arithmetic 
+The constructors `Lambda` and `App` together with the constructs for
+binary operators and comparisons form a small functional language for
+arithmetic and tests which is useful for scalar computations.
 
 The `Let` construct is used for explicit sharing in the syntax
 tree. It is exposed to the programmer via the `let_` function which
@@ -369,6 +371,30 @@ is worth pointing out that meta-repa does not employ observable
 sharing [@claessen1999observable] so no new `Let` constructors are
 introduced when the program is represented by the `Expr` type.
 
+The constructor `If` and `IterateWhile` are unsurprising constrol flow
+constructs for pure computations.
+
+There are two types of in-memory arrays in the code language. These
+arrays are not exposed to the programmer, they are instead used as
+building blocks for the array types implemented as shallow embedding
+which we explain in the next subsection. The two type of array in the
+core language are always allocated in memory. One of the types is
+`UArray` which represents pure arrays and the constructs `ReadIArray`
+and `ArrayLength` can be used to query them. There is no pure
+construct for creating pure arrays, instead they must be created
+through destructive, monadic constructs which we turn to next.
+
+To begin with, the monadic construct contains the generic `Return`,
+`Bind` and a looping construct, `WhileM`. Then there are a few
+constructs for creating, reading and updating mutable arrays. The
+`RunMutableArray` construct takes a monadic computation and returns a
+pure array. In that way it is similar to the ST monad
+[@launchbury1994lazy]. Compared to the state monad, the state
+parameter in the type has been omitted, since there is no construct
+corresponding to `runST` with a polymorphic return type.
+
+Finally, there is the parallel for-loop, `ParM`, which is the
+construct for parallel computations. 
 
 There are a couple of things to note about the core language:
 
