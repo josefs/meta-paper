@@ -247,9 +247,9 @@ details, in particular the use of push arrays are explained in section
 Programs in meta-repa are in fact program generators. When meta-repa
 functions are run they produce abstract syntax trees which are then
 further translated and transformed. Figure \ref{fig:pipeline} gives an
-overview of this proces. Boxes represents abstract syntax trees and
+overview of this process. Boxes represents abstract syntax trees and
 circles represents transformations and translations. First the code
-within the Template Haskell spice is run. This will compute a term of
+within the Template Haskell splice is run. This will compute a term of
 type `Expr`, a GADT which ensures type safety of program by
 construction. Since all functions defined using the meta-repa library
 are really Haskell functions they will simply compute new syntax
@@ -262,9 +262,7 @@ The type `Expr` uses higher order abstract syntax to represent
 programs. This representation is convenient for programming with but
 somewhat less ideal for rewriting programs. The AST is therefore
 converted into a first order representation, which we will refer to as
-`FOAS`. It retains much of the type information from `Expr` but is not
-well typed by construction in the same way as the `Expr` type, since
-the type of variables are not tracked.
+`FOAS`.
 
 Two optimizations are performed on the `FOAS` representation: common
 subexpression elimination (CSE) and code motion. CSE finds identical
