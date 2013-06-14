@@ -825,22 +825,57 @@ library for high performance computing developed over several years.
 
 # Discussion
 
+This paper presents a methodology for using embedded domain specific
+langauges to implement high performance Haskell programs. It comes
+with a complete example which shows the viablity of the approach.
+
 ## Summary
 
-Pros
+Out methodology has some pros and cons which we have mentioned
+thoughout the paper. Here is a concise summary of the different
+aspects of using the embedded langauge approach.
 
-* More natural code
+Advantages:
+
+* More natural programming model.
+
+  Since the embedded language can be given a semantics which matches
+  the particular implementation
+
 * Performance guarantees
+
+  When using a restricted language, the problem of optimizing it
+  becomes much simpler, to the point where it is possible to give
+  strong performance guarantees.
+
 * Inlining and fusion for free
+
+  
+
 * Domain specific optimizations
+
+  Even though we generate Haskell code and make use of the
+  optimizations provided by GHC and whichever backend it uses, it is
+  possible to write domain specific optimizations
+
 * Value level programming instead of type level programming
 
-Cons
+  As seen in section \ref{sec:shape}, the implementation can become
+  simpler by moving type level computations to the value level.  This
+  helps to simplify types in the API and makes the library easier to
+  use and comprehend.
 
-* Having to implement an embedded language requires extra code
+Drawbacks:
 
-* Some types become a little more awkward. For instance one has to
+* Having to implement an embedded language requires an upfront
+  investment in defining the language and its compilation.
+
+* Some types become a little more awkward. For instance, one has to
   write `Expr Int` instead of `Int`.
+
+Weighing the advantages and drawbacks against each other our
+conclusion is clear. Using the embedded language approach is a net win
+in the long term for writing high performance application in Haskell.
 
 ## Future work
 
