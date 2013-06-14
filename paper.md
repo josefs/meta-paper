@@ -473,19 +473,49 @@ generate efficient code from any meta-repa program. On top of the core
 language there are several shallow embeddings; in the case of
 meta-repa there are two types of arrays which are implemented as
 shallow embeddings. Implementing language constructs as shallow
-embeddings help keep the core language small and \TODO{fusion}
+embeddings help keep the core language small and allows for easy and
+lightweight experimentation with different language constructs without
+having to add new constructors in the core language and translation
+functions for those. 
+
+In meta-repa there are two constructs which are implemented as shallow
+embeddings; arrays and monads. Implementing the monad as a shallow
+embedding has the advantage of proving an instance of the `Monad` type
+class which enables the programmer to use do-notation and reuse all
+the monadic combinators in the standard library. For the details of
+how the shallow embedding for monads work we refer the reader to the
+paper [@persson2012generic].
+
+Arrays are also implemented as shallow embeddings. While this is not a
+new technique, we will present enough details about the implementation
+in meta-repa to show how it contributes to writing high performance
+Haskell programs. There are two kinds of arrays in meta-repa, but we
+will focus on one of them here, pull arrays, and leave the description
+of the other kind, push array, for section \ref{sec:push}. Pull arrays are similar to 
+
+They are defined as follows:
+
+~~~
+data Pull sh a = Pull (Shape sh -> a) (Shape sh)
+~~~
+
+
+
+
+\TODO{fusion}
 
 \TODO{Pull arrays}
 \TODO{Fusion for free}
 
 ## From type level to value level programming
+\label{sec:shape}
 
 \TODO{The Shape class vs the Shape GADT}
 
 In repa, the type of shapes of an array is represented by a type class
 and two singleton (?) types
 
-~~~{.haskell}
+~~~
 class Shape sh where
   ...
 
