@@ -86,7 +86,9 @@ programmer can introduce abstraction without losing any performance.
   but we explain why this is the right default in section
   \ref{sec:push} on Push arrays.
 
-  Fusion can easily be prevented 
+  Fusion can easily be prevented by inserting the function `force`,
+  which will store the array to memory. This follows the design used in
+  Feldspar and repa.
 
 * *Common subexpression elimination and code motion are applied
   extensively on the program*.
@@ -109,31 +111,65 @@ we're representing programs.
 # Implementation of meta-repa
 \label{sec:impl}
 
-Programs in meta-repa are in fact program generators. The type
-`Expr` is the type of abstract syntax trees for meta-repa
-programs. Similarly, the class `Computable` denotes all types which
-can be translated into `Expr`.
+\begin{figure*}[t]
+\center
+\includegraphics[scale=0.8]{meta.pdf}
+\label{fig:pipeline}
+\caption{The compilation pipeline for meta-repa programs}
+\end{figure*}
 
+This section explains most of the implementation of meta-repa. Some
+details, in particular the use of push arrays are explained in section
+\ref{sec:push}.
+
+Programs in meta-repa are in fact program generators. When meta-repa
+functions are run they produce abstract syntax trees which are then
+further translated and transformed. Figure \ref{fig:pipeline} gives an
+overview of this proces. Boxes represents abstract syntax trees and
+circles represents transformations and translations. First the code
+within the Template Haskell spice is run. This will compute a term of
+type `Expr`, a GADT which ensures type safety of program by
+construction. Since all functions defined using the meta-repa library
+are really Haskell functions they will simply compute new syntax
+trees. The net effect will be that the code in the functions will be
+inlined (unless prevented by the programmer). The inlining happens
+purely as a result of Haskell's evalutation, there is no code in the
+meta-repa library which performs any inlining.
+
+The type `Expr` uses higher order abstract syntax to represent
+programs. This representation is convenient for programming with but
+somewhat less ideal for rewriting programs. The AST is therefore
+converted into a first order representation, which we will refer to as
+`FOAS`. It retains much of the type information from `Expr` but is not
+well typed by construction in the same way as the `Expr` type, since
+the type of variables are not tracked.
+
+Two optimizations are performed on the `FOAS` representation: common
+subexpression elimination (CSE) and code motion. CSE finds identical
+subexpressions and shares their computation so that it only happens
+once. The transformation is selective with exactly what subexpressions
+to share. We found in measurements that the generated code was faster
+if most small subexpressions were left unshared. The code motion
+transformation moves code up the syntax tree to that it is computed as
+early as possible. It also moves constant expressions out of loops.
+
+Another popular way to achieve CSE is to represent the syntax tree as
+a dag and thereby get sharing as a side effect of the
+representation. We've chosed to use a simpler tree based
+representation with an explicit `let` construct for sharing which
+allows us to make local decisions about what to share and what to
+duplicate.
+
+Once the `FOAS` representation is transformed a wrapper is added
+around it which gives the expression a type which makes it easier to
+call from Haskell. Then, as a last step the code is translated to
+Template Haskell and spliced into the module by GHC.
 
 We would like to point out that the use of Template Haskell is just a
 matter of convenience and not of fundamental importance. Another
 possibility would have been to write the generated Haskell code to a
 separate file which the programmer would then have to compile
 separately.
-
-The implementation of meta-repa follows the methodology of combining
-deep and shallow embeddings descibed in
-[@svenningsson12:DeepShallow]. It has a deeply embedded core language
-which contains all the language constructs necessary to generate
-efficient code from any program. On top of the core language there are
-several shallow embeddings, in the case of meta-repa there are two
-types of arrays which are implemented as shallow
-embeddings. Implementing language constructs as shallow
-embeddings help keep the core language small and \TODO{fusion}
-
-\TODO{Generating the AST}
-\TODO{Inlining by default}
-
 
 ## Core Language(s)
 
@@ -218,20 +254,23 @@ There are a couple of things to note about the core language:
   restriction is that when compiling a meta-repa program, all types
   must be instantiated to monomorphic types.
 
-After the HOAS representation is generated, it is translated to a
-first order representation. This representation is used for performing
-domain specific optimizations. We have implemented two optimizations:
-common subexpression elimination and loop-invariant code motion.
-
 \TODO{Describe the monad and what operations it provides}
 \TODO{Performance guarantees}
-\TODO{Inlining for free}
-\TODO{Domain specific optimizations, CSE and loop-invariant code motion.}
 
 \TODO{No observable sharing}
 
 ## Shallow Embeddings for Arrays
 \label{sec:shallow}
+
+The implementation of meta-repa follows the methodology of combining
+deep and shallow embeddings descibed in
+[@svenningsson12:DeepShallow]. The type `Expr` is a deeply embedded
+core language which contains all the language constructs necessary to
+generate efficient code from any meta-repa program. On top of the core
+language there are several shallow embeddings; in the case of
+meta-repa there are two types of arrays which are implemented as
+shallow embeddings. Implementing language constructs as shallow
+embeddings help keep the core language small and \TODO{fusion}
 
 \TODO{Pull arrays}
 \TODO{Fusion for free}
