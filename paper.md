@@ -87,25 +87,42 @@ ordinary tuple syntax. `Computable` handles the tupling and untupling
 in the core language automatically.
 
 \TODO{Say something about Shapes}
+
 \TODO{Explain that there are two types of arrays, Pull and Push}
 
 The library for array computations are implemented as a shallow
 embedding on top of the core language.  There are two different types
-of arrays in meta-repa, Pull arrays and Push arrays. Pull arrays are
-implemented as follows:
-
-~~~ {.haskell}
-
-data Pull sh a = Pull (Shape sh -> a) (Shape sh)
-
-~~~
-
-The first argument to the constructor is a function that takes an
-index and computes the element at that index.
+of arrays in meta-repa, Pull arrays and Push arrays. Pull arrays
+correspond to the delayed array representation in repa. Push arrays
+are a different kind of delayed representation that supports a
+different set of operations. Pull arrays are discussed further in
+\ref{sec:shallow}.
+Push arrays are discussed in detail in \ref{sec:push}
+The `Shape` type is used to represent array indices of varying
+dimensionality. The type parameter determines the dimension of the
+index. [Shape polymorphism, compare to repa]
 
 \TODO{Discuss library functions for working with arrays}
 
 
+The library includes functions for manipulating arrays. Many of them
+correspond to list functions found in the Prelude. Both array types
+have a Functor instance.
+
+Here are some examples of functions for Pull arrays that exist in the
+library:
+
+~~~ {.haskell}
+
+zipWith :: (a -> b -> c) 
+        -> Pull sh a -> Pull sh b -> Pull sh c
+
+fromFunction :: (Shape sh -> a) -> Shape sh -> Pull sh a
+
+~~~
+
+`fromFunction` takes an index function and an extent and constructs a
+Pull array.
 
 \TODO{Compare to programming in repa}
 \TODO{Mandelbrot as an example}
