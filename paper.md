@@ -499,8 +499,45 @@ They are defined as follows:
 data Pull sh a = Pull (Shape sh -> a) (Shape sh)
 ~~~
 
+~~~
+instance P.Functor (Pull sh) where
+  fmap f (Pull ixf sh) = Pull (f . ixf) sh
 
+fromFunction :: (Shape sh -> a) -> Shape sh
+             -> Pull sh a
+fromFunction ixf sh = Pull ixf sh
 
+storePull :: (Computable a, Storable (Internal a)) =>
+             Pull sh a
+          -> M (Expr (MArray (Internal a)))
+storePull (Pull ixf sh) = 
+  do arr <- newArrayE (size sh)
+     forShape sh (\i ->
+       writeArrayE arr i
+         (internalize (ixf (fromIndex sh i))))
+     P.return arr
+
+index :: Pull sh a -> Shape sh -> a
+index (Pull ixf s) = ixf
+
+zipWith :: (Computable a, Computable b, Computable c)
+        => (a -> b -> c)
+        -> Pull sh a -> Pull sh b -> Pull sh c
+zipWith f (Pull ixf1 sh1) (Pull ixf2 sh2)
+  = Pull (\ix -> f (ixf1 ix) (ixf2 ix))
+         (intersectDim sh1 sh2)
+
+traverse :: Pull sh a -> (Shape sh -> Shape sh')
+         -> ((Shape sh -> a) -> Shape sh' -> b)
+         -> Pull sh' b
+traverse (Pull ixf sh) shFn elemFn
+  = Pull (elemFn ixf) (shFn sh)
+
+backpermute :: Shape sh2 -> (Shape sh2 -> Shape sh1)
+            -> Pull sh1 a -> Pull sh2 a
+backpermute sh2 perm (Pull ixf sh1)
+  = Pull (ixf . perm) sh2
+~~~
 
 \TODO{fusion}
 
