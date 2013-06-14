@@ -45,11 +45,130 @@ Contributions:
 
 # Programming in meta-repa
 
+The basic unit of a meta-repa program are values of the type `Expr a`,
+which represent expressions in the core language. For example, a
+simple numeric expression can be written using the standard Num
+instance:
+
+~~~ {.haskell}
+e :: Expr Int
+e = 10*5+2
+~~~
+
+Functions are written as normal Haskell functions over `Expr`s. For
+example, a simple numeric function:
+
+~~~ {.haskell}
+f :: Expr Int -> Expr Int -> Expr Int
+f a b = a*a - b
+~~~
+
+Core language constructs:
+
+~~~ {.haskell}
+
+if_ :: Computable a => Expr Bool -> a -> a -> a
+
+iterateWhile :: Computable a 
+						 => (a -> Expr Bool)
+						 -> (a -> a) 
+						 -> a
+						 -> a
+
+~~~
+
+Note that polymorphic arguments use the class `Computable` rather
+than being of type `Expr a`. The `Computable` class allows the
+programmer to write code as if certain Haskell constructs are part of
+the core language. For example, it is more convenient to work with the
+type `(Expr Int, Expr Double)` rather than `Expr (Int, Double)`
+because the former can be constructed and deconstructed with Haskell's
+ordinary tuple syntax. `Computable` handles the tupling and untupling
+in the core language automatically.
+
+\TODO{Say something about Shapes}
+\TODO{Explain that there are two types of arrays, Pull and Push}
+
+The library for array computations are implemented as a shallow
+embedding on top of the core language.  There are two different types
+of arrays in meta-repa, Pull arrays and Push arrays. Pull arrays are
+implemented as follows:
+
+~~~ {.haskell}
+
+data Pull sh a = Pull (Shape sh -> a) (Shape sh)
+
+~~~
+
+The first argument to the constructor is a function that takes an
+index and computes the element at that index.
+
+\TODO{Discuss library functions for working with arrays}
+
+
+
 \TODO{Compare to programming in repa}
 \TODO{Mandelbrot as an example}
 
-\TODO{Explain that there are two types of arrays, Pull and Push}
-\TODO{Make sure to point out the Expr type and the class Computable}
+~~~ {.haskell}
+
+type Complex = (Double, Double)
+type ComplexPlane r = Array r DIM2 Complex
+type StepPlane r = Array r DIM2 (Complex,Int)
+
+step :: ComplexPlane U 
+		 -> StepPlane U
+		 -> IO (StepPlane U)
+step cs zs = computeP $ zipWith stepPoint cs zs
+  where
+    stepPoint 
+			:: Complex -> (Complex,Int) -> (Complex,Int)
+    {-# INLINE stepPoint #-}
+    stepPoint !c (!z,!i) =
+        if magnitude z' > 4.0 
+					then (z,i)
+					else (z',i+1)
+      where
+        z' = next c z
+    next :: Complex -> Complex -> Complex
+    {-# INLINE next #-}
+    next !c !z = c + (z * z)
+
+~~~
+
+~~~ {.haskell}
+ 
+type Complex = (Expr Double, Expr Double)
+type ComplexPlane = Pull DIM2 Complex
+type StepPlane = Pull DIM2 (Complex, Expr Int)
+
+step :: ComplexPlane 
+		 -> StepPlane
+		 -> StepPlane
+step cs zs = forcePull $ zipWith stepPoint cs zs
+  where
+    stepPoint :: Complex 
+							-> (Complex,Expr Int)
+							-> (Complex,Expr Int)
+    stepPoint c (z,i) =
+        if_ (magnitude z' > 4.0)
+          (z,i)
+          (z',i+1)
+      where
+        z' = next c z
+    next :: Complex -> Complex -> Complex
+    next c z = c + (z * z)
+
+~~~
+
+Differences:
+
+* Int, Double -> Expr Int, Expr Double
+* No explicitily manifest array type.
+* if then else -> if_
+* Bang patterns and INLINE
+
+
 \TODO{Also mention the use of Template Haskell}
 
 ## Contract towards the programmer
