@@ -110,8 +110,10 @@ index and computes the element at that index.
 \TODO{Compare to programming in repa}
 \TODO{Mandelbrot as an example}
 
-~~~ {.haskell}
+\begin{figure*}
+\begin{tabular}{p{\columnwidth} | p{\columnwidth}}
 
+\begin{verbatim}
 type Complex = (Double, Double)
 type ComplexPlane r = Array r DIM2 Complex
 type StepPlane r = Array r DIM2 (Complex,Int)
@@ -133,11 +135,9 @@ step cs zs = computeP $ zipWith stepPoint cs zs
     next :: Complex -> Complex -> Complex
     {-# INLINE next #-}
     next !c !z = c + (z * z)
-
-~~~
-
-~~~ {.haskell}
- 
+\end{verbatim}
+&
+\begin{verbatim}
 type Complex = (Expr Double, Expr Double)
 type ComplexPlane = Pull DIM2 Complex
 type StepPlane = Pull DIM2 (Complex, Expr Int)
@@ -158,8 +158,11 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
         z' = next c z
     next :: Complex -> Complex -> Complex
     next c z = c + (z * z)
-
-~~~
+\end{verbatim}
+\end{tabular}
+\label{fig:comparison}
+\caption{A comparison between programming in repa and meta-repa}
+\end{figure*}
 
 Differences:
 
