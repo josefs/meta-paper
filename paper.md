@@ -573,6 +573,17 @@ instance Functor (Push sh) where
     = Push m (sh1:.(l1 + l2))
   where m k = m1 k >>
               m2 (\(sh:.i) a -> k (sh:.(i+l1)) a)
+
+force :: Storable a =>
+         Push sh (Expr a)
+      -> Push sh (Expr a)
+force (Push f l) = Push f' l
+  where f' k =
+    do arr <- newArrayE (size l)
+       f (\sh a -> writeArrayE arr (toIndex l sh) a)
+       forShape l $ \i -> do
+         a <- readArrayE arr i
+         k (fromIndex l i) a
 ~~~
 
 The function `enumFromTo` is similar to the standard Haskell function
@@ -597,10 +608,19 @@ concatenation on pull array, which is a single loop containing a
 branch which checks which argument array to read from. Concatenation
 for push arrays has effectively moved the conditional out of the loop,
 a big win in term of performance. It should be added that an even
-better implementation of concatenation would have been used parallel
+better implementation of concatenation would have used parallel
 composition instead of sequential composition. However, our current
 runtime system doesn't support that. There is still room for
 improvements.
+
+Finally, the function `force` show how push arrays are written to
+memory. It can be used by the programmer to prevent fusion and make
+sure that an array is written to memory. The kernel of the resulting
+array allocates a new in-memory array and calls the kernel of the
+input array with a write function as a parameter which writes all the
+elements to the newly allocated array. It then iterates through the
+array in memory writing all the elements using the write function
+parameter.
 
 ## FFT
 \label{sec:fft}
