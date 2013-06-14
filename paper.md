@@ -808,7 +808,7 @@ Push arrays were first introduced in Obsidian
 [@claessen2012expressive] and has subsequently been implemented in
 Feldspar [@axelsson2011design] and Nikola [@mainland2010nikola].
 
-# Acknowledgements
+\acks
 
 The FFT implementation is a port from a Feldspar implementation
 written by Anders Persson. Thanks to Emil Axelsson for suggesting to
