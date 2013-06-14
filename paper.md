@@ -532,7 +532,7 @@ instance Shape sh => Shape (sh :. Int) where
 In meta-repa, thanks to the meta programming approach, shapes can be
 represented by an ordinary data type definiton.
 
-~~~{.haskell}
+~~~
 data Z
 data sh :. e
 data Shape sh where
@@ -546,7 +546,7 @@ lot more natural. Many of the functions which had to be implemented in
 the `Shape` type class in repa can now be implemeted as ordinary
 functions.
 
-~~~{.haskell}
+~~~
 dim :: Shape sh -> Int
 dim Z = 0
 dim (sh :. _) = dim sh + 1
@@ -578,7 +578,7 @@ There are still some functions on `Shape` which require a type class
 to be implemented. These are the functions which doesn't take any
 arguments of type `Shape` but whose result are of type `Shape`.
 
-~~~{.haskell}
+~~~
 class Shapely sh where
   mkShape :: Expr Index -> Shape sh
   toShape :: Int -> Expr (UArray Int Length)
@@ -595,6 +595,13 @@ instance Shapely sh => Shapely (sh :. Expr Length)
     = toShape (i+1) arr :.
       (readIArray arr (P.fromIntegral i))
 ~~~
+
+Being able to program on the value level rather than the type level is
+clear improvement for the implementation of the library. It makes the
+code more readable and maintainable. Another small win is that the API
+of meta-repa will contain less class constraints, since it uses the
+`Shapely` class very seldomly. This makes the types easer to read and
+comprehend.
 
 ## Runtime system
 
