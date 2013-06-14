@@ -499,7 +499,8 @@ using push arrays translates to a real speed advantage.
 \hline
  & \multicolumn{2}{c||}{no \tt -threaded} & \multicolumn{2}{c||}{\tt -N1} & \multicolumn{2}{c|}{\tt -N4}\\
 \hline
-benchmark & meta  & repa  & meta  & repa  & meta  & repa \\
+\bf benchmark & \bf meta  & \bf repa  & \bf meta  & \bf repa  & \bf meta  & \bf repa \\
+\hline
 \hline
 matrix100 & 708.5684 us & 986.2883 us & 817.5255 us & 1.164313 ms & 252.8681 us & 470.2105 us \\
 \hline
