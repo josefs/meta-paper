@@ -675,6 +675,20 @@ using push arrays translates to a real speed advantage.
 \TODO{Explain how to write efficient stencil computations}
 \TODO{Pull/Push a nice model for Stencils}
 
+~~~
+stencilSobel :: Stencil DIM2 (Expr Float) (Expr Float)
+stencilSobel = [stencilM| -1 0 1
+                          -2 0 2
+                          -1 0 1 |]
+
+stencilBlur :: Stencil DIM2 (Expr Float) (Expr Float)
+stencilBlur = [stencilM| 2  4  5  4  2
+                         4  9 12  9  4
+                         5 12 15 12  5
+                         4  9 12  9  4
+                         2  4  5  4  2 |]
+~~~
+
 # Measurements
 \label{sec:benchmarks}
 
