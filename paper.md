@@ -293,75 +293,82 @@ separately.
 
 ## Core Language(s)
 
-The core language of meta-repa is a standard typed higher order
-abstract syntax representation implemented using GADTs. A fragment
-with the most relevant constructs is shown in picture \ref{}.
-
-~~~ {.haskell}
+\begin{figure}
+\begin{verbatim}
 data Expr a where
   Var   :: Int -> Expr a
-  Var2  :: Name -> Expr a
   Value :: a -> Expr a
 
-  Lambda :: Type a -> (Expr a -> Expr b) -> Expr (a -> b)
+  Lambda :: Type a -> (Expr a -> Expr b)
+         -> Expr (a -> b)
   App :: Expr (a -> b) -> Expr a -> Expr b
 
   Binop :: Binop a -> Expr a -> Expr a -> Expr a
-  Abs :: Num a => Expr a -> Expr a
-  Signum :: Num a => Expr a -> Expr a
-  Recip :: Fractional a => Expr a -> Expr a
-  FromInteger :: Num a => TypeConst a -> Integer -> Expr a
-  FromRational :: Fractional a => TypeConst a -> Rational -> Expr a
-  FromIntegral :: (Integral a, Num b) => Type b -> Expr a -> Expr b
-  Complement :: Bits a => Expr a -> Expr a
-  Bit :: Bits a => Expr Int -> Expr a
-  Rotate :: Bits a => Expr a -> Expr Int -> Expr a
-  ShiftL :: Bits a => Expr a -> Expr Int -> Expr a
-  ShiftR :: Bits a => Expr a -> Expr Int -> Expr a
-
-  BoolLit :: Bool -> Expr Bool
-
   Equal :: Eq a => Expr a -> Expr a -> Expr Bool
   NotEqual :: Eq a => Expr a -> Expr a -> Expr Bool
-
-  GTH :: Ord a => Expr a -> Expr a -> Expr Bool
-  LTH :: Ord a => Expr a -> Expr a -> Expr Bool
-  GTE :: Ord a => Expr a -> Expr a -> Expr Bool
-  LTE :: Ord a => Expr a -> Expr a -> Expr Bool
-
   Unit :: Expr ()
 
   Tup2 :: Expr a -> Expr b -> Expr (a,b)
   Fst :: Expr (a,b) -> Expr a
   Snd :: Expr (a,b) -> Expr b
 
-  TupN :: (Tup t) => t Expr -> Expr (t Id)
-  GetN :: (Get n t Expr b) => Int -> n -> Expr (t Id) -> Expr b
-
   Let :: Expr a -> (Expr a -> Expr b) -> Expr b
+  If :: Expr Bool -> Expr a -> Expr a -> Expr a
+  IterateWhile :: Expr (s -> Bool) -> Expr (s -> s)
+               -> Expr s -> Expr s
 
   Return :: Expr a -> Expr (IO a)
-  Bind   :: Expr (IO a) -> Expr (a -> IO b) -> Expr (IO b)
+  Bind   :: Expr (IO a) -> Expr (a -> IO b)
+         -> Expr (IO b)
 
-  If :: Expr Bool -> Expr a -> Expr a -> Expr a
+  WhileM :: Expr (s -> Bool) -> Expr (s -> s)
+         -> Expr (s -> IO ()) -> Expr s
+         -> Expr (IO ())
 
-  Rec :: Expr ((a -> r) -> a -> r) -> Expr a -> Expr r
-  IterateWhile :: Expr (s -> Bool) -> Expr (s -> s) -> Expr s -> Expr s
-  WhileM :: Expr (s -> Bool) -> Expr (s -> s) -> Expr (s -> IO ()) -> Expr s -> Expr (IO ())
+  RunMutableArray :: Storable a =>
+                     Expr (IO (IOUArray Int a))
+                  -> Expr (UArray Int a)
+  ReadIArray :: Storable a =>
+                Expr (UArray Int a) -> Expr Int
+             -> Expr a
+  ArrayLength :: Storable a =>
+                 Expr (UArray Int a) -> Expr Int
 
-  RunMutableArray :: Storable a => Expr (IO (IOUArray Int a)) -> Expr (UArray Int a)
-  ReadIArray :: Storable a => Expr (UArray Int a) -> Expr Int -> Expr a
-  ArrayLength :: Storable a => Expr (UArray Int a) -> Expr Int
-
-  NewArray   :: Storable a => Type a -> Expr Int -> Expr (IO (IOUArray Int a))
-  ReadArray  :: Storable a => Expr (IOUArray Int a) -> Expr Int -> Expr (IO a)
-  WriteArray :: Storable a => Expr (IOUArray Int a) -> Expr Int -> Expr a -> Expr (IO ())
-  ParM       :: Expr Int -> Expr (Int -> IO ()) -> Expr (IO ())
+  NewArray   :: Storable a =>
+                Type a -> Expr Int
+             -> Expr (IO (IOUArray Int a))
+  ReadArray  :: Storable a =>
+                Expr (IOUArray Int a) -> Expr Int
+             -> Expr (IO a)
+  WriteArray :: Storable a =>
+                Expr (IOUArray Int a)
+             -> Expr Int -> Expr a -> Expr (IO ())
+  ParM       :: Expr Int -> Expr (Int -> IO ())
+             -> Expr (IO ())
   Skip       :: Expr (IO ())
+\end{verbatim}
+\label{fig:expr}
+\caption{A representative subset of the \texttt{Expr} data type}
+\end{figure}
 
-  Print :: Show a => Expr a -> Expr (IO ())
-~~~
-\TODO{Think about how to cut down the fragment}
+The core language of meta-repa, represented by the `Expr` data type,
+is a standard typed higher order abstract syntax representation
+implemented using GADTs. A fragment with the most relevant construcs
+is shown in picture \ref{fig:expr}.
+
+The first two constructors `Var` and `Value` are used for compilation
+and evaluation and will never be present in trees produced by code
+written in meta-repa.
+
+The constructors `Lambda` and `App` together with the constructs for binary operators and comparisons form a small functional language for arithmetic 
+
+The `Let` construct is used for explicit sharing in the syntax
+tree. It is exposed to the programmer via the `let_` function which
+can be used to prevent inlining and explicitly share computations. It
+is worth pointing out that meta-repa does not employ observable
+sharing [@claessen1999observable] so no new `Let` constructors are
+introduced when the program is represented by the `Expr` type.
+
 
 There are a couple of things to note about the core language:
 
@@ -378,6 +385,13 @@ There are a couple of things to note about the core language:
 \TODO{Performance guarantees}
 
 \TODO{No observable sharing}
+
+\TODO{Evaluation function}
+
+The core language comes with an evaluation function which defined the
+semantics. The evaluation function is straighforward to write. It is
+also very useful for trying out the language during its development
+and as a reference semantics to test the Template Haskell against.
 
 ## Shallow Embeddings for Arrays
 \label{sec:shallow}
@@ -482,14 +496,6 @@ instance Shapely sh => Shapely (sh :. Expr Length)
     = toShape (i+1) arr :.
       (readIArray arr (P.fromIntegral i))
 ~~~
-
-
-
-## Compilation to Haskell
-
-\TODO{Show how some language features get compiled very easily to
-Haskell using quotation}
-\TODO{Explain the use of Template Haskell and that it is optional.}
 
 # Push arrays
 \label{sec:push}
