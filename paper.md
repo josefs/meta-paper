@@ -323,7 +323,6 @@ data Expr a where
   Binop :: Binop a -> Expr a -> Expr a -> Expr a
   Equal :: Eq a => Expr a -> Expr a -> Expr Bool
   NotEqual :: Eq a => Expr a -> Expr a -> Expr Bool
-  Unit :: Expr ()
 
   Tup2 :: Expr a -> Expr b -> Expr (a,b)
   Fst :: Expr (a,b) -> Expr a
@@ -378,8 +377,9 @@ and evaluation and will never be present in trees produced by code
 written in meta-repa.
 
 The constructors `Lambda` and `App` together with the constructs for
-binary operators and comparisons form a small functional language for
-arithmetic and tests which is useful for scalar computations.
+binary operators, comparisons and tuples form a small functional
+language for arithmetic and tests which is useful for efficient scalar
+computations.
 
 The `Let` construct is used for explicit sharing in the syntax
 tree. It is exposed to the programmer via the `let_` function which
@@ -408,10 +408,21 @@ constructs for creating, reading and updating mutable arrays. The
 pure array. In that way it is similar to the ST monad
 [@launchbury1994lazy]. Compared to the state monad, the state
 parameter in the type has been omitted, since there is no construct
-corresponding to `runST` with a polymorphic return type.
+corresponding to `runST` with a polymorphic return type which could be
+used to pass mutable arrays outside of the scope of their monadic
+computation.
 
 Finally, there is the parallel for-loop, `ParM`, which is the
 construct for parallel computations. 
+
+Currently it is possible to have a `ParM` inside another
+`ParM`. However, as we discuss below, our runtime system does not
+allow this kind of nesting. We have not made any attempts at
+disallowing nesting in the type system. Instead, the API to meta-repa
+is designed such that nested parallel loops should never occur. This
+has affected the push array library (covered in section
+\ref{sec:push}); certain combinators use a sequential loop where they
+could have used a parallel loop in order to keep the parallelism flat.
 
 There are a couple of things to note about the core language:
 
@@ -424,17 +435,32 @@ There are a couple of things to note about the core language:
   restriction is that when compiling a meta-repa program, all types
   must be instantiated to monomorphic types.
 
-\TODO{Describe the monad and what operations it provides}
-\TODO{Performance guarantees}
-
-\TODO{No observable sharing}
-
-\TODO{Evaluation function}
+* It has a strict semantics. In order to get maximum performance and,
+  again, to be able to unbox as much as possible we have chosen a
+  strict semantics for meta-repa. It also fits better with the domain
+  than lazy evaluation. When writing high performance Haskell one
+  often has to resort to inserting calls to `seq` and using bang
+  patterns to get strict code. None of that is necessary when
+  programming in meta-repa due to its semantics.
 
 The core language comes with an evaluation function which defined the
 semantics. The evaluation function is straighforward to write. It is
 also very useful for trying out the language during its development
 and as a reference semantics to test the Template Haskell against.
+
+As mentioned above, `Expr` is translated into a first order
+representation, `FOAS`, which is used for transforming the
+program. The type `FOAS` has all the same constructs as `Expr` but in
+a first order representation with explicit variables and explicit
+types which have been reified from the Haskell types parameter for
+`Expr`. Below is the constructor for the pure iteration construct in `FOAS`.
+
+~~~
+IterateWhile Type FOAS FOAS FOAS
+~~~
+
+The first argument to `IterateWhile` is a value representing the type
+of the state passed around during iteration.
 
 ## Shallow Embeddings for Arrays
 \label{sec:shallow}
