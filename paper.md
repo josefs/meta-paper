@@ -523,12 +523,35 @@ instance Shapely sh => Shapely (sh :. Expr Length)
       (readIArray arr (P.fromIntegral i))
 ~~~
 
+## Runtime system
+
+The library meta-repa relies on a small runtime system in order to set
+up the parallel computations and distribute them over the available
+processes. We have chosen to reuse the runtime system from repa by
+simply calling the the appropriate low-level functions provided the
+library. This has had a number of positive effects. First, the repa
+library has a well-developed and mature runtime system which has been
+used and improved over several years. Secondly, when doing
+measurements to compare against repa, the runtime system is equal and
+eliminates a lot of possible sources of differences which could affect
+the benchmarks. Being able to share runtime system means that the
+comparisons can focus on the generated code and the amount of
+parallelism made available in the different libraries.
+
+A downside to using the runtime system of repa is that it only handles
+flat parallelism. This means that it is not possible to nest the
+`ParM` construct in the core language and some care has gone into
+designing the API in meta-repa to avoid nesting. However, nested
+parallelism is a much harder problem than flat parallelism and
+developing a completely new runtime for meta-repa would have outside
+the scope of the project.
+
 # Push arrays
 \label{sec:push}
 
-The interface meta-repa is heavily inspired by repa, but some things
-have been consiously made different. The most significant divergence
-is the choice of having two kinds of arrays.
+The programmers interface in meta-repa is heavily inspired by repa,
+but some things have been consiously made different. The most
+significant divergence is the choice of having two kinds of arrays.
 
 In meta-repa there are two types of arrays, delayed arrays. One of
 these types, pull arrays, were already presented in section
