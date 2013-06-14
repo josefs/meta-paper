@@ -739,6 +739,14 @@ using push arrays translates to a real speed advantage.
 ## Stencil computations
 
 \TODO{Explain how to write efficient stencil computations}
+Stencil computations consists of computing elements in the result
+array from a fixed pattern of neighboring elements in the input. Since
+adjacent elements share neighbors there is a lot of potential for
+sharing computations between elements. Exploiting this is not possible
+using Pull arrays, since elements are necessarily computed
+independently.
+\TODO{Write something about how this is addressed in repa?}
+
 \TODO{Pull/Push a nice model for Stencils}
 
 ~~~
