@@ -751,6 +751,10 @@ elements to the newly allocated array. It then iterates through the
 array in memory writing all the elements using the write function
 parameter.
 
+The function `forShape` used in the definition of `force` is a
+parallel loop over shapes, and implemented in terms of `parM`. This
+function is what makes push arrays parallelizable.
+
 ## FFT
 \label{sec:fft}
 
