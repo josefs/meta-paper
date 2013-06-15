@@ -43,6 +43,9 @@ Contributions:
   use two different types of arrays we consider the resulting API to
   be easier to use. We explain the details in section \ref{sec:push}.
 
+The reposity containing the code for meta repa can be found at:
+\url{http://github.com/jankner/meta-repa}
+
 # Programming in meta-repa
 \label{sec:programming}
 
