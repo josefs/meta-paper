@@ -879,6 +879,25 @@ The function `forShape` used in the definition of `force` is a
 parallel loop over shapes, and implemented in terms of `parM`. This
 function is what makes push arrays parallelizable.
 
+Interoperating pull arrays and push arrays is an interesting
+story. Pull arrays can easily be converted into push arrays in a way
+that preserves fusion. In meta-repa we use the function `toPush` for
+this purpose:
+
+~~~
+toPush (Pull ixf sh) = Push m sh
+  where m k = forShape sh (\i -> let ish = fromIndex sh i
+                                 in  k ish (ixf ish))
+~~~
+
+However, there doesn't seem to be any way of converting push arrays to
+pull array without allocating memory and thereby destroying
+fusion. This asymmetry might seem disturbing but is hardly surprising;
+pull- and push arrays have different strength and weaknesses so we
+should not expect to be able to convert freely between the two. In
+fact, when implementing stencil computations we will use this
+asymmetry to our advantage (see below, section \ref{sec:stencil}).
+
 ## FFT
 \label{sec:fft}
 
@@ -928,6 +947,7 @@ using push arrays translates to a real speed advantage.
 
 
 ## Stencil computations
+\label{sec:stencil}
 
 Stencil computations consists of computing elements in the result
 array from a fixed pattern of neighboring elements in the input. Since
