@@ -126,7 +126,7 @@ fromFunction :: (Shape sh -> a)
 `fromFunction` takes an index function and an extent and constructs a
 Pull array.
 
-In figure \ref{comparison} is a comparison between the
+In figure \ref{fig:comparison} is a comparison between the
 implementation of a function in repa and meta-repa. The fucntion
 `step` is a part in calculating the Mandelbrot set. It calculates
 $z_{i+1} = z_i + c$ for a given complex plane, where $c$ comes from the
