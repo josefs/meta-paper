@@ -1225,6 +1225,13 @@ Push arrays were first introduced in Obsidian
 [@claessen2012expressive] and has subsequently been implemented in
 Feldspar [@axelsson2011design] and Nikola [@mainland2010nikola].
 
+Stencil computations lends themselves very well to functional parallel
+programming as has been noted in recent papers
+[@lippmeier2011efficient,@orchard2010ypnos]. Our characterization of
+stencil computations as functions from pull- to push arrays seems new
+although some instances of this principle already occurred in
+[@claessen2012expressive].
+
 \acks
 
 The FFT implementation is a port from a Feldspar implementation
