@@ -1143,19 +1143,15 @@ way to use the methodology presented in this paper.
 
 # Related work
 
-
-\TODO{Related work}
-\TODO{Nikola}
-\TODO{Repa}
-\TODO{Deep vs Shallow}
-\TODO{Little languages in LISP}
-
 Domain specific languages have become increasingly popular over the
 last decade, although they have a long and rich history
-[@Bentley:1986:PPL:6424.315691].
+[@Bentley:1986:PPL:6424.315691]. Haskell has proved very effective as
+a host language for *embedding* domain specific languages. Examples
+include [@reid1999prototyping; @hudak1997domain; @bjesse1998lava;@mainland2010nikola;@svensson2011obsidian;@axelsson2011design].
 
-Haskell has proved very effective as a host language for *embedding*
-domain specific languages.
+The approach of combining deep and shallow embeddings is explained in
+[@svenningsson12:DeepShallow] but has been used previously in
+languages such as Feldspar [@axelsson2011design].
 
 One particular feature of the methodology presented in this paper is
 that it enables library writers to easily write their own
@@ -1169,6 +1165,21 @@ providing the the same kind of performance guarantees is an
 undecidable problem. Again, formulating a limited, domain specific
 language pays off by making the problem of optimization feasible.
 
+GHC also has another mechanism for enabling the library writer to
+implement new optimiations: rewrite rules
+[@jones2001playing]. Although a very tool for writing high performance
+Haskell it has limited expressivity. It is not clear that it is even
+possible to use rewrite rules to implement common subexpression
+eleminitation and code motion featured in meta-repa. In our design,
+the full expressivity of Haskell is at hand when writing new
+optimizations.
+
+A big influence for this work, naturally, is the repa library
+[@keller2010regular]. It has proven to be a very nice library to work
+with and reimplement, during the course of implementing
+meta-repa. Repa has in many way been ideal to use as a vehicle to
+compare our embedded langauge approach to regular Haskell programming.
+
 Henning Thielemann has developed a family of libraries for audio
 processing, called "synthesizer" [@synthesizer]. One particular member
 in this family is "synthesizer-llvm" [@synthesizer-llvm] which employs
@@ -1178,6 +1189,11 @@ compile-time code generation and generate Haskell. For our purposes,
 generating Haskell was sufficient from a performance perspective and
 very convenient as Haskell allows us to generate relatively high
 level code compared to LLVM.
+
+The latest version of Nikola [@nikola] is very similar in design to
+meta-repa, but targets GPU computations instead. An interesting bit of
+future work would be to combine the two libraries to give a uniform
+language which integrates both CPU and GPU computations.
 
 The notion of pull arrays is by now a well established way of
 representing arrays pioneer by [@elliott2003compiling].	   
