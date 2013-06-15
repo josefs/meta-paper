@@ -786,6 +786,28 @@ independently.
 \TODO{Write something about how this is addressed in repa?}
 
 \TODO{Pull/Push a nice model for Stencils}
+In meta-repa we have solved the problem of sharing computation between
+elements by using Push arrays to represent the result of the stencil
+computation. The Push array allows the producer more controll over the
+loop that writes the array, which makes it possible to explicitily
+exploit the sharing, by having a inner sequential loop that maintains
+a state. Computations that can be shared are stored in the state so
+that they can be used ...
+
+~~~
+
+runStencil :: Computable a 
+           => Boundary a 
+           -> Stencil (sh :. Expr Int) a b 
+           -> Pull (sh :. Expr Int) a 
+           -> Push (sh :. Expr Int) b
+
+~~~
+
+The first argument is a value that describes how the boundarys are
+handled. The `Stencil` is the type that describes the stencil
+computation. It mainly contains functions that initilizes and updates
+the state of the inner loop.
 
 ~~~
 stencilSobel :: Stencil DIM2 (Expr Float) (Expr Float)
