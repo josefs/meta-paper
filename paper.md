@@ -1249,7 +1249,11 @@ although some instances of this principle already occurred in
 
 The FFT implementation is a port from a Feldspar implementation
 written by Anders Persson. Thanks to Emil Axelsson for suggesting to
-use GADTs to represent the `Shape` type. The mandelbrot example in
-section \ref{sec:programming} is due to Geoffrey Mainland.
+use GADTs to represent the `Shape` type. The mandelbrot example is due
+to Geoffrey Mainland.
+
+We would like to thank the members of the functional programming group
+at Chalmers who gave us valuable feedback during a presentation of
+meta-repa.
 
 # References
