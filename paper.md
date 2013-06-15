@@ -1032,7 +1032,9 @@ Advantages:
   the particular implementation, the programming style can become more
   natural. In our particular case-study the programmer doesn't need to
   concern himself with writing bang patterns or inline pragmas to make
-  the code fast.
+  the code fast. Relieving the programming of having to inserting
+  these annotations removes a whole category of potential performance
+  bug which can go unnoticed and be difficult to pin down.
 
 * Performance guarantees
 
