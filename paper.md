@@ -1126,8 +1126,8 @@ generating Haskell was sufficient from a performance perspective and
 very convenient as Haskell allows us to generate relatively high
 level code compared to LLVM.
 
-The general design philosophy seems to be similar to ours.
-
+The notion of pull arrays is by now a well established way of
+representing arrays pioneer by [@elliott2003compiling].	   
 The guarantee of fusion for arrays in meta-repa is the same as in
 Feldspar [@axelsson2011design] and repa. It stems from the
 implementation technique pioneered by Feldspar.
