@@ -532,21 +532,23 @@ new technique, we will present enough details about the implementation
 in meta-repa to show how it contributes to writing high performance
 Haskell programs. There are two kinds of arrays in meta-repa, but we
 will focus on one of them here, pull arrays, and leave the description
-of the other kind, push array, for section \ref{sec:push}. Pull arrays are similar to 
-
-They are defined as follows:
+of the other kind, push array, for section \ref{sec:push}. Pull arrays
+are defined as follows:
 
 ~~~
 data Pull sh a = Pull (Shape sh -> a) (Shape sh)
 ~~~
 
+Representing arrays as functions from index to value has become a
+popular way due to its simple implementation and nice properties. In
+particular, since every element is computer independently, it is very
+easy to parallelize writing such arrays to memory.
+
+Below are some examples for functions on pull arrays:
+
 ~~~
 instance P.Functor (Pull sh) where
   fmap f (Pull ixf sh) = Pull (f . ixf) sh
-
-fromFunction :: (Shape sh -> a) -> Shape sh
-             -> Pull sh a
-fromFunction ixf sh = Pull ixf sh
 
 storePull :: (Computable a, Storable (Internal a)) =>
              Pull sh a
@@ -556,13 +558,16 @@ storePull (Pull ixf sh) =
      forShape sh (\i ->
        writeArrayE arr i
          (internalize (ixf (fromIndex sh i))))
-     P.return arr
+     return arr
+
+fromFunction :: (Shape sh -> a) -> Shape sh
+             -> Pull sh a
+fromFunction ixf sh = Pull ixf sh
 
 index :: Pull sh a -> Shape sh -> a
 index (Pull ixf s) = ixf
 
-zipWith :: (Computable a, Computable b, Computable c)
-        => (a -> b -> c)
+zipWith :: (a -> b -> c)
         -> Pull sh a -> Pull sh b -> Pull sh c
 zipWith f (Pull ixf1 sh1) (Pull ixf2 sh2)
   = Pull (\ix -> f (ixf1 ix) (ixf2 ix))
@@ -578,12 +583,56 @@ backpermute :: Shape sh2 -> (Shape sh2 -> Shape sh1)
             -> Pull sh1 a -> Pull sh2 a
 backpermute sh2 perm (Pull ixf sh1)
   = Pull (ixf . perm) sh2
+
+forcePull :: Storable a =>
+             Pull sh (Expr a) -> Pull sh (Expr a)
+forcePull p@(Pull ixf sh)
+    = Pull (\ix -> ixf' arr ix) sh
+  where
+    ixf' arr ix = readIArray arr (toIndex sh ix)
+    arr = runMutableArray (storePull p)
 ~~~
 
-\TODO{fusion}
+A perhaps surprising thing about pull arrays is that they can be made
+an instance of the type class `Functor`. Since we are implementing an
+embedded language it typically means that there must be some form of
+class constraint on polymorphic functions. However, the definition of
+pull arrays is carefully chosen such that they can work with any
+Haskell type. It is only when actually storing the array, as in the
+`storePull` function, where there has to be a constraint on the type
+of element in the pull array. The function `storePull` uses the
+constructs for mutable arrays to write the pull array to memory. The
+function `forShape` is a parallel for-loop which goes through all
+element in the shape of the array in parallel.
 
-\TODO{Pull arrays}
-\TODO{Fusion for free}
+The function `fromFunction` provides an easy way to create arrays,
+it's simply an alias for the `Pull` constructor. The `index` function
+provides a means for indexing into the array. A slightly more involved
+example is `zipWith` which works much like the standard function on
+lists with the same name. The slightly non-trivial part is that the
+shape of the final array is the intersection of the shapes of the
+input arrays.
+
+The functions `traverse` and `backpermute` are directly ported from
+the repa library and enables powerful transformations of arrays. The
+implementation of meta-repa also contains many other functions for
+manipulating arrays ported from the repa library.
+
+A nice benefit of the way pull arrays are represented and using the
+embedded language approach is that fusion comes for free and is
+guaranteed. Compiling meta-repa programs means producing a syntax tree
+of type `Expr`. Since this type doesn't contain the type `Pull` we
+have a static guarantee that all pull arrays will be statically
+eliminated. A very powerful guarantee indeed. The fact that it happens
+purely as a side-effect of Haskell's evalutation is an added bonus.
+
+Although fusion is often what the programmer wants, there are
+occasions when it is good to be able to disable it. An example is when
+an array transformation uses the elements of the input array more than
+once. Then the computation which produced the elements of the input
+array will be duplicated, akin to call-by-name evaluation. In such
+situations it is often better to write the array to memory. The
+function `forcePull` can be used to achieve this.
 
 ## From type level to value level programming
 \label{sec:shape}
