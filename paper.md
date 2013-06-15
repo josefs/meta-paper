@@ -243,7 +243,7 @@ spliced into a module using Template Haskell. For example you might
 have this meta-repa function in one module:
 
 ~~~
-x
+
 f :: Expr Int -> Expr Int -> Expr Int
 f a b = sumS (fromFunction (Z :. (b - a)) (\(Z :. i) -> i + a))
 
