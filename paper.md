@@ -361,7 +361,6 @@ data Expr a where
   Binop :: Binop a -> Expr a -> Expr a -> Expr a
   Equal :: Eq a => Expr a -> Expr a -> Expr Bool
   NotEqual :: Eq a => Expr a -> Expr a -> Expr Bool
-  Unit :: Expr ()
 
   Tup2 :: Expr a -> Expr b -> Expr (a,b)
   Fst :: Expr (a,b) -> Expr a
@@ -416,8 +415,9 @@ and evaluation and will never be present in trees produced by code
 written in meta-repa.
 
 The constructors `Lambda` and `App` together with the constructs for
-binary operators and comparisons form a small functional language for
-arithmetic and tests which is useful for scalar computations.
+binary operators, comparisons and tuples form a small functional
+language for arithmetic and tests which is useful for efficient scalar
+computations.
 
 The `Let` construct is used for explicit sharing in the syntax
 tree. It is exposed to the programmer via the `let_` function which
@@ -446,10 +446,21 @@ constructs for creating, reading and updating mutable arrays. The
 pure array. In that way it is similar to the ST monad
 [@launchbury1994lazy]. Compared to the state monad, the state
 parameter in the type has been omitted, since there is no construct
-corresponding to `runST` with a polymorphic return type.
+corresponding to `runST` with a polymorphic return type which could be
+used to pass mutable arrays outside of the scope of their monadic
+computation.
 
 Finally, there is the parallel for-loop, `ParM`, which is the
 construct for parallel computations. 
+
+Currently it is possible to have a `ParM` inside another
+`ParM`. However, as we discuss below, our runtime system does not
+allow this kind of nesting. We have not made any attempts at
+disallowing nesting in the type system. Instead, the API to meta-repa
+is designed such that nested parallel loops should never occur. This
+has affected the push array library (covered in section
+\ref{sec:push}); certain combinators use a sequential loop where they
+could have used a parallel loop in order to keep the parallelism flat.
 
 There are a couple of things to note about the core language:
 
@@ -462,17 +473,32 @@ There are a couple of things to note about the core language:
   restriction is that when compiling a meta-repa program, all types
   must be instantiated to monomorphic types.
 
-\TODO{Describe the monad and what operations it provides}
-\TODO{Performance guarantees}
-
-\TODO{No observable sharing}
-
-\TODO{Evaluation function}
+* It has a strict semantics. In order to get maximum performance and,
+  again, to be able to unbox as much as possible we have chosen a
+  strict semantics for meta-repa. It also fits better with the domain
+  than lazy evaluation. When writing high performance Haskell one
+  often has to resort to inserting calls to `seq` and using bang
+  patterns to get strict code. None of that is necessary when
+  programming in meta-repa due to its semantics.
 
 The core language comes with an evaluation function which defined the
 semantics. The evaluation function is straighforward to write. It is
 also very useful for trying out the language during its development
 and as a reference semantics to test the Template Haskell against.
+
+As mentioned above, `Expr` is translated into a first order
+representation, `FOAS`, which is used for transforming the
+program. The type `FOAS` has all the same constructs as `Expr` but in
+a first order representation with explicit variables and explicit
+types which have been reified from the Haskell types parameter for
+`Expr`. Below is the constructor for the pure iteration construct in `FOAS`.
+
+~~~
+IterateWhile Type FOAS FOAS FOAS
+~~~
+
+The first argument to `IterateWhile` is a value representing the type
+of the state passed around during iteration.
 
 ## Shallow Embeddings for Arrays
 \label{sec:shallow}
@@ -485,19 +511,86 @@ generate efficient code from any meta-repa program. On top of the core
 language there are several shallow embeddings; in the case of
 meta-repa there are two types of arrays which are implemented as
 shallow embeddings. Implementing language constructs as shallow
-embeddings help keep the core language small and \TODO{fusion}
+embeddings help keep the core language small and allows for easy and
+lightweight experimentation with different language constructs without
+having to add new constructors in the core language and translation
+functions for those. 
+
+In meta-repa there are two constructs which are implemented as shallow
+embeddings; arrays and monads. Implementing the monad as a shallow
+embedding has the advantage of proving an instance of the `Monad` type
+class which enables the programmer to use do-notation and reuse all
+the monadic combinators in the standard library. For the details of
+how the shallow embedding for monads work we refer the reader to the
+paper [@persson2012generic].
+
+Arrays are also implemented as shallow embeddings. While this is not a
+new technique, we will present enough details about the implementation
+in meta-repa to show how it contributes to writing high performance
+Haskell programs. There are two kinds of arrays in meta-repa, but we
+will focus on one of them here, pull arrays, and leave the description
+of the other kind, push array, for section \ref{sec:push}. Pull arrays are similar to 
+
+They are defined as follows:
+
+~~~
+data Pull sh a = Pull (Shape sh -> a) (Shape sh)
+~~~
+
+~~~
+instance P.Functor (Pull sh) where
+  fmap f (Pull ixf sh) = Pull (f . ixf) sh
+
+fromFunction :: (Shape sh -> a) -> Shape sh
+             -> Pull sh a
+fromFunction ixf sh = Pull ixf sh
+
+storePull :: (Computable a, Storable (Internal a)) =>
+             Pull sh a
+          -> M (Expr (MArray (Internal a)))
+storePull (Pull ixf sh) = 
+  do arr <- newArrayE (size sh)
+     forShape sh (\i ->
+       writeArrayE arr i
+         (internalize (ixf (fromIndex sh i))))
+     P.return arr
+
+index :: Pull sh a -> Shape sh -> a
+index (Pull ixf s) = ixf
+
+zipWith :: (Computable a, Computable b, Computable c)
+        => (a -> b -> c)
+        -> Pull sh a -> Pull sh b -> Pull sh c
+zipWith f (Pull ixf1 sh1) (Pull ixf2 sh2)
+  = Pull (\ix -> f (ixf1 ix) (ixf2 ix))
+         (intersectDim sh1 sh2)
+
+traverse :: Pull sh a -> (Shape sh -> Shape sh')
+         -> ((Shape sh -> a) -> Shape sh' -> b)
+         -> Pull sh' b
+traverse (Pull ixf sh) shFn elemFn
+  = Pull (elemFn ixf) (shFn sh)
+
+backpermute :: Shape sh2 -> (Shape sh2 -> Shape sh1)
+            -> Pull sh1 a -> Pull sh2 a
+backpermute sh2 perm (Pull ixf sh1)
+  = Pull (ixf . perm) sh2
+~~~
+
+\TODO{fusion}
 
 \TODO{Pull arrays}
 \TODO{Fusion for free}
 
 ## From type level to value level programming
+\label{sec:shape}
 
 \TODO{The Shape class vs the Shape GADT}
 
 In repa, the type of shapes of an array is represented by a type class
 and two singleton (?) types
 
-~~~{.haskell}
+~~~
 class Shape sh where
   ...
 
@@ -514,7 +607,7 @@ instance Shape sh => Shape (sh :. Int) where
 In meta-repa, thanks to the meta programming approach, shapes can be
 represented by an ordinary data type definiton.
 
-~~~{.haskell}
+~~~
 data Z
 data sh :. e
 data Shape sh where
@@ -528,7 +621,7 @@ lot more natural. Many of the functions which had to be implemented in
 the `Shape` type class in repa can now be implemeted as ordinary
 functions.
 
-~~~{.haskell}
+~~~
 dim :: Shape sh -> Int
 dim Z = 0
 dim (sh :. _) = dim sh + 1
@@ -560,7 +653,7 @@ There are still some functions on `Shape` which require a type class
 to be implemented. These are the functions which doesn't take any
 arguments of type `Shape` but whose result are of type `Shape`.
 
-~~~{.haskell}
+~~~
 class Shapely sh where
   mkShape :: Expr Index -> Shape sh
   toShape :: Int -> Expr (UArray Int Length)
@@ -577,6 +670,13 @@ instance Shapely sh => Shapely (sh :. Expr Length)
     = toShape (i+1) arr :.
       (readIArray arr (P.fromIntegral i))
 ~~~
+
+Being able to program on the value level rather than the type level is
+clear improvement for the implementation of the library. It makes the
+code more readable and maintainable. Another small win is that the API
+of meta-repa will contain less class constraints, since it uses the
+`Shapely` class very seldomly. This makes the types easer to read and
+comprehend.
 
 ## Runtime system
 
@@ -725,6 +825,10 @@ input array with a write function as a parameter which writes all the
 elements to the newly allocated array. It then iterates through the
 array in memory writing all the elements using the write function
 parameter.
+
+The function `forShape` used in the definition of `force` is a
+parallel loop over shapes, and implemented in terms of `parM`. This
+function is what makes push arrays parallelizable.
 
 ## FFT
 \label{sec:fft}
@@ -910,22 +1014,57 @@ library for high performance computing developed over several years.
 
 # Discussion
 
+This paper presents a methodology for using embedded domain specific
+langauges to implement high performance Haskell programs. It comes
+with a complete example which shows the viablity of the approach.
+
 ## Summary
 
-Pros
+Out methodology has some pros and cons which we have mentioned
+thoughout the paper. Here is a concise summary of the different
+aspects of using the embedded langauge approach.
 
-* More natural code
+Advantages:
+
+* More natural programming model.
+
+  Since the embedded language can be given a semantics which matches
+  the particular implementation
+
 * Performance guarantees
+
+  When using a restricted language, the problem of optimizing it
+  becomes much simpler, to the point where it is possible to give
+  strong performance guarantees.
+
 * Inlining and fusion for free
+
+  
+
 * Domain specific optimizations
+
+  Even though we generate Haskell code and make use of the
+  optimizations provided by GHC and whichever backend it uses, it is
+  possible to write domain specific optimizations
+
 * Value level programming instead of type level programming
 
-Cons
+  As seen in section \ref{sec:shape}, the implementation can become
+  simpler by moving type level computations to the value level.  This
+  helps to simplify types in the API and makes the library easier to
+  use and comprehend.
 
-* Having to implement an embedded language requires extra code
+Drawbacks:
 
-* Some types become a little more awkward. For instance one has to
+* Having to implement an embedded language requires an upfront
+  investment in defining the language and its compilation.
+
+* Some types become a little more awkward. For instance, one has to
   write `Expr Int` instead of `Int`.
+
+Weighing the advantages and drawbacks against each other our
+conclusion is clear. Using the embedded language approach is a net win
+in the long term for writing high performance application in Haskell.
 
 ## Future work
 
