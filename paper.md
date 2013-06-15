@@ -1164,6 +1164,12 @@ be that new languages have to be developed to cater for needs in
 different domains. Further research is needed to determine the best
 way to use the methodology presented in this paper.
 
+Push arrays also come with an initial cost in that they introduce yet
+another type of arrays to the API of the library. However, considering
+the performance advantages, the simplified implementation of stencil
+computations and its more useful default behaviour when it comes to
+fusion, we consider push arrays to be a definite advantage.
+
 # Related work
 
 Domain specific languages have become increasingly popular over the
