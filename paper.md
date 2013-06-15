@@ -44,6 +44,7 @@ Contributions:
   be easier to use. We explain the details in section \ref{sec:push}.
 
 # Programming in meta-repa
+\label{sec:programming}
 
 The basic unit of a meta-repa program are values of the type `Expr a`,
 which represent expressions in the core language. For example, a
@@ -1245,6 +1246,7 @@ although some instances of this principle already occurred in
 
 The FFT implementation is a port from a Feldspar implementation
 written by Anders Persson. Thanks to Emil Axelsson for suggesting to
-use GADTs to represent the `Shape` type.
+use GADTs to represent the `Shape` type. The mandelbrot example in
+section \ref{sec:programming} is due to Geoffrey Mainland.
 
 # References
