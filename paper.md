@@ -588,10 +588,8 @@ backpermute sh2 perm (Pull ixf sh1)
 ## From type level to value level programming
 \label{sec:shape}
 
-\TODO{The Shape class vs the Shape GADT}
-
 In repa, the type of shapes of an array is represented by a type class
-and two singleton (?) types
+and two singleton (?) types as follows:
 
 ~~~
 class Shape sh where
@@ -613,6 +611,7 @@ represented by an ordinary data type definiton.
 ~~~
 data Z
 data sh :. e
+
 data Shape sh where
   Z :: Shape Z
   (:.) :: Shape sh -> Expr Length
@@ -649,8 +648,6 @@ inRange Z Z Z = true
 inRange (shL :. l) (shU :. u) (sh :. i)
   = l <= i && i < u && inRange shL shU sh
 ~~~
-
-\TODO{What Shape functions are interesting to show}
 
 There are still some functions on `Shape` which require a type class
 to be implemented. These are the functions which doesn't take any
