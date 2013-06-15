@@ -229,7 +229,6 @@ different . Here are the differences:
 * meta-repa does not have an explicitily manifest array type. Instead,
   the forcePull function is used to write a Pull array to an
   underlying array and return a Pull array which reads from it.
-  \TODO{Maybe explain this better}
 * The meta-repa code uses the function `if_` rather than Haskell's
   `if then else`.
 * The repa code uses bang-patterns and INLINE pragmas to make sure
@@ -243,12 +242,11 @@ spliced into a module using Template Haskell. For example you might
 have this meta-repa function in one module:
 
 ~~~
-x
+
 f :: Expr Int -> Expr Int -> Expr Int
-f a b = sumS (fromFunction (Z :. (b - a)) (\(Z :. i) -> i + a))
+f a b = sumS (enumFromTo a b)
 
 ~~~
-\TODO{Think of a less stupid function}
 
 In another module which imports that function, the function can be
 spliced in like this:
