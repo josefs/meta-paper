@@ -5,13 +5,41 @@
 # Introduction
 
 In recent years the Haskell community has developed an increasing
-interest in writing programs which perform well. Libraries have been developed 
+interest in writing programs which perform well. Much thanks to the
+advancements of optimizations and language design focused on
+efficiency in GHC, the Haskell community now enjoys several
+high-performance libraries and it is quite possible to write efficient
+code in Haskell.
 
-Even though GHC is a terrific optimizing compiler, by necessity it sometimes fall short of generating the code that 
+In this paper we introduce a new methodology to take high performance
+Haskell programming to a new level, by use an embedded domain specific
+language approach. Embedded domain specific languages (EDSLs), and in
+particular embedded compilers, have been very popular in Haskell for
+quite some time now and has proven very effective for formulating good
+abstractions which both provides a natural programming model and
+efficient code generation. Up until now, high performance EDSLs has
+been generating code for targets such as C, CUDA and VHDL. Our
+methodology aims to bring these advantages to writing high performance
+Haskell programs, by generating efficient Haskell code.
 
+By formulating an EDSL and thereby restricting the language somewhat,
+many optimization problems become much simpler. As we will demonstrate
+in this paper, it is possible guarantee that all types are unboxed,
+every function inlined and all array computations fused. These things
+can be achieved by still allowing a rich and expressive programming
+interface.
 
+To demonstrate the viability of our methodology, this paper presents
+case study, meta-repa, which is a reimplementation parts of the repa
+library [@keller2010regular]. The library meta-repa (the name comes
+from the fact that it implements repa using meta-programming
+techniques) is described in some detail to show how achieve the
+advantages of EDSLs when used for Haskell programming. We include
+measurements agains repa to show that the code generated from
+meta-repa can indeed compete with a well-designed and mature,
+high-performance library.
 
-Contributions:
+The contributions of the paper are as follows:
 
 * We present a new methodology for writing high performance Haskell
   programs. We argue for using an embedded domain specific language
@@ -35,15 +63,17 @@ Contributions:
   [@keller2010regular] library using the embedded language
   approach. We explain the implementation in section
   \ref{sec:impl}. Section \ref{sec:benchmarks} presents benchmarks
-  showing that meta-repa is as fast, or faster, than repa.
+  showing that meta-repa is on par with, and sometimes faster than
+  repa.
 
 * Instead of one array type we have two. We have included push arrays
   [@claessen2012expressive] in our implementation. The result is a
-  vastly simpler library and although the user of our library must now
-  use two different types of arrays we consider the resulting API to
-  be easier to use. We explain the details in section \ref{sec:push}.
+  simpler implementation of many array operations including stencil
+  computations and although the user of our library must now use two
+  different types of arrays we consider the resulting API to be easier
+  to use. We explain the details in section \ref{sec:push}.
 
-The reposity containing the code for meta repa can be found at:
+The reposity containing the code for meta-repa can be found at:
 \url{http://github.com/jankner/meta-repa}
 
 # Programming in meta-repa
