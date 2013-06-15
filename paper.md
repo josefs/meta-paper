@@ -579,7 +579,8 @@ traverse :: Pull sh a -> (Shape sh -> Shape sh')
 traverse (Pull ixf sh) shFn elemFn
   = Pull (elemFn ixf) (shFn sh)
 
-backpermute :: Shape sh2 -> (Shape sh2 -> Shape sh1)
+backpermute :: Shape sh2
+            -> (Shape sh2 -> Shape sh1)
             -> Pull sh1 a -> Pull sh2 a
 backpermute sh2 perm (Pull ixf sh1)
   = Pull (ixf . perm) sh2
@@ -638,7 +639,7 @@ function `forcePull` can be used to achieve this.
 \label{sec:shape}
 
 In repa, the type of shapes of an array is represented by a type class
-and two singleton (?) types as follows:
+and two singleton types as follows:
 
 ~~~
 class Shape sh where
@@ -886,8 +887,10 @@ this purpose:
 
 ~~~
 toPush (Pull ixf sh) = Push m sh
-  where m k = forShape sh (\i -> let ish = fromIndex sh i
-                                 in  k ish (ixf ish))
+  where m k = forShape sh (\i ->
+                let ish = fromIndex sh i
+                in  k ish (ixf ish)
+              )
 ~~~
 
 However, there doesn't seem to be any way of converting push arrays to
@@ -938,9 +941,9 @@ the butterfly network. It takes a push array of pairs and flattens it
 such that the first half of the resulting push array contains all the
 first components of the pairs and the second half the second
 components. The crucial bit is that the computation of the pair can be
-shared and that the two components can be written in the same loop
-iteration. It is not possible to express this kind of sharing using
-pull arrays alone.
+shared and that the two components of the pair can be written in the
+same loop iteration. It is not possible to express this kind of
+sharing using pull arrays alone.
 
 In section \ref{sec:benchmarks} we present benchmarks showing that
 using push arrays translates to a real speed advantage.
