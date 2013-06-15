@@ -1029,7 +1029,10 @@ Advantages:
 * More natural programming model.
 
   Since the embedded language can be given a semantics which matches
-  the particular implementation
+  the particular implementation, the programming style can become more
+  natural. In our particular case-study the programmer doesn't need to
+  concern himself with writing bang patterns or inline pragmas to make
+  the code fast.
 
 * Performance guarantees
 
@@ -1039,7 +1042,13 @@ Advantages:
 
 * Inlining and fusion for free
 
-  
+  Due to using an embedded language, inlining comes for free and by
+  default. The implementation of meta-repa doesn't have to have any
+  code to performing inlining and substitution, it simply relies on
+  Haskell's evalutation.
+
+  In a similar manner, fusion also comes for free, thanks to
+  well-chosen representations of arrays.
 
 * Domain specific optimizations
 
