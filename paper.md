@@ -929,7 +929,6 @@ using push arrays translates to a real speed advantage.
 
 ## Stencil computations
 
-\TODO{Explain how to write efficient stencil computations}
 Stencil computations consists of computing elements in the result
 array from a fixed pattern of neighboring elements in the input. Since
 adjacent elements share neighbors there is a lot of potential for
@@ -938,14 +937,13 @@ using Pull arrays, since elements are necessarily computed
 independently.
 \TODO{Write something about how this is addressed in repa?}
 
-\TODO{Pull/Push a nice model for Stencils}
 In meta-repa we have solved the problem of sharing computation between
 elements by using Push arrays to represent the result of the stencil
-computation. The Push array allows the producer more controll over the
+computation. The Push array allows the producer more control over the
 loop that writes the array, which makes it possible to explicitily
-exploit the sharing, by having a inner sequential loop that maintains
+exploit the sharing by having a inner sequential loop that maintains
 a state. Computations that can be shared are stored in the state so
-that they can be used ...
+that they can be used when computing subsequent elements.
 
 ~~~
 
@@ -958,11 +956,17 @@ runStencil :: Computable a
 ~~~
 
 The first argument is a value that describes how the boundarys are
-handled. The `Stencil` is the type that describes the stencil
-computation. It mainly contains functions that initilizes and updates
-the state of the inner loop.
+handled. The `Stencil` type describes the stencil computation. It
+contains the functions that are used to initilize and update the
+state, and to use the state to compute the elements of the result.
+This gives a lot of control when defining the stencil, allowing for
+explicitly exploiting sharing, but it also means that it is more work
+to define the stencil.
+We provide a quasi-quoter to help with defining stencils, in the same
+way that repa does.
 
 ~~~
+
 stencilSobel :: Stencil DIM2 (Expr Float) (Expr Float)
 stencilSobel = [stencilM| -1 0 1
                           -2 0 2
