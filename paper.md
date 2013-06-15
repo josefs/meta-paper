@@ -86,9 +86,6 @@ because the former can be constructed and deconstructed with Haskell's
 ordinary tuple syntax. `Computable` handles the tupling and untupling
 in the core language automatically.
 
-\TODO{Say something about Shapes}
-
-\TODO{Explain that there are two types of arrays, Pull and Push}
 
 The library for array computations are implemented as a shallow
 embedding on top of the core language.  There are two different types
@@ -97,17 +94,17 @@ correspond to the delayed array representation in repa. Push arrays
 are a different kind of delayed representation that supports a
 different set of operations. Pull arrays are discussed further in
 \ref{sec:shallow}.
-Push arrays are discussed in detail in \ref{sec:push}
+Push arrays are discussed in detail in \ref{sec:push}.
 The `Shape` type is used to represent array indices of varying
 dimensionality. The type parameter determines the dimension of the
-index. [Shape polymorphism, compare to repa]
-
-\TODO{Discuss library functions for working with arrays}
-
+index. For example the type paremeter `DIM2` indicates a
+two-dimensional index.  This works much the same as in repa, though it
+is implmented in a slightly different way. This is discussed in more
+detail in section \ref{sec:shape}.
 
 The library includes functions for manipulating arrays. Many of them
 correspond to list functions found in the Prelude. Both array types
-have a Functor instance.
+also have a Functor instance.
 
 Here are some examples of functions for Pull arrays that exist in the
 library:
@@ -121,10 +118,18 @@ fromFunction :: (Shape sh -> a)
              -> Shape sh 
              -> Pull sh a
 
+foldS :: (Computable a, Computable b)
+      => b
+      -> (a -> b -> b)
+      -> Pull (sh :. Expr Length) a
+      -> Pull sh b
+
 ~~~
 
 `fromFunction` takes an index function and an extent and constructs a
-Pull array.
+Pull array. `foldS` performs a sequential fold on the outer dimension
+of an array with at least one dimension, and returns an array that has
+one less dimension than the input.
 
 In figure \ref{comparison} is a comparison between the
 implementation of a function in repa and meta-repa. The fucntion
@@ -202,8 +207,6 @@ different . Here are the differences:
   meta-repa everything is inlined by default and it is completely
   static.
 
-
-\TODO{Also mention the use of Template Haskell}
 
 When you have written your meta-repa code it can be translated and
 spliced into a module using Template Haskell. For example you might
