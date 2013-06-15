@@ -63,17 +63,17 @@ f :: Expr Int -> Expr Int -> Expr Int
 f a b = a*a - b
 ~~~
 
-Core language constructs:
+Some examples of core language constructs:
 
 ~~~ {.haskell}
 
 if_ :: Computable a => Expr Bool -> a -> a -> a
 
 iterateWhile :: Computable a 
-						 => (a -> Expr Bool)
-						 -> (a -> a) 
-						 -> a
-						 -> a
+             => (a -> Expr Bool)
+             -> (a -> a) 
+             -> a
+             -> a
 
 ~~~
 
@@ -117,15 +117,20 @@ library:
 zipWith :: (a -> b -> c) 
         -> Pull sh a -> Pull sh b -> Pull sh c
 
-fromFunction :: (Shape sh -> a) -> Shape sh -> Pull sh a
+fromFunction :: (Shape sh -> a) 
+             -> Shape sh 
+             -> Pull sh a
 
 ~~~
 
 `fromFunction` takes an index function and an extent and constructs a
 Pull array.
 
-\TODO{Compare to programming in repa}
-\TODO{Mandelbrot as an example}
+In figure \ref{comparison} is a comparison between the
+implementation of a function in repa and meta-repa. The fucntion
+`step` is a part in calculating the Mandelbrot set. It calculates
+$z_{i+1} = z_i + c$ for a given complex plane, where $c$ comes from the
+first argument and $z_i$ comes from the second argument.
 
 \begin{figure*}
 \begin{tabular}{p{\columnwidth} | p{\columnwidth}}
@@ -136,17 +141,18 @@ type ComplexPlane r = Array r DIM2 Complex
 type StepPlane r = Array r DIM2 (Complex,Int)
 
 step :: ComplexPlane U 
-		 -> StepPlane U
-		 -> IO (StepPlane U)
+     -> StepPlane U
+     -> IO (StepPlane U)
 step cs zs = computeP $ zipWith stepPoint cs zs
   where
-    stepPoint 
-			:: Complex -> (Complex,Int) -> (Complex,Int)
+    stepPoint :: Complex
+              -> (Complex,Int)
+              -> (Complex,Int)
     {-# INLINE stepPoint #-}
     stepPoint !c (!z,!i) =
         if magnitude z' > 4.0 
-					then (z,i)
-					else (z',i+1)
+          then (z,i)
+          else (z',i+1)
       where
         z' = next c z
     next :: Complex -> Complex -> Complex
@@ -160,13 +166,13 @@ type ComplexPlane = Pull DIM2 Complex
 type StepPlane = Pull DIM2 (Complex, Expr Int)
 
 step :: ComplexPlane 
-		 -> StepPlane
-		 -> StepPlane
+     -> StepPlane
+     -> StepPlane
 step cs zs = forcePull $ zipWith stepPoint cs zs
   where
     stepPoint :: Complex 
-							-> (Complex,Expr Int)
-							-> (Complex,Expr Int)
+              -> (Complex,Expr Int)
+              -> (Complex,Expr Int)
     stepPoint c (z,i) =
         if_ (magnitude z' > 4.0)
           (z,i)
@@ -181,15 +187,47 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
 \caption{A comparison between programming in repa and meta-repa}
 \end{figure*}
 
-Differences:
+The two code fragments are quite similar, with some details being
+different . Here are the differences:
 
-* Int, Double -> Expr Int, Expr Double
-* No explicitily manifest array type.
-* if then else -> if_
-* Bang patterns and INLINE
+* `Int` and `Double` becomes `Expr Int` and `Expr Double`.
+* meta-repa does not have an explicitily manifest array type. Instead,
+  the forcePull function is used to write a Pull array to an
+  underlying array and return a Pull array which reads from it.
+  \TODO{Maybe explain this better}
+* The meta-repa code uses the function `if_` rather than Haskell's
+  `if then else`.
+* The repa code uses bang-patterns and INLINE pragmas to make sure
+  that the worker functions are properly inlined and static. In
+  meta-repa everything is inlined by default and it is completely
+  static.
 
 
 \TODO{Also mention the use of Template Haskell}
+
+When you have written your meta-repa code it can be translated and
+spliced into a module using Template Haskell. For example you might
+have this meta-repa function in one module:
+
+~~~
+
+f :: Expr Int -> Expr Int -> Expr Int
+f a b = sumS (fromFunction (Z :. (b - a)) (\(Z :. i) -> i + a))
+
+~~~
+\TODO{Think of a less stupid function}
+
+In another module which imports that function, the function can be
+spliced in like this:
+
+~~~
+
+func :: Int -> Int -> Int
+func = $(translate f)
+
+~~~
+
+
 
 ## Contract towards the programmer
 
