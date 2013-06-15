@@ -84,7 +84,7 @@ which represent expressions in the core language. For example, a
 simple numeric expression can be written using the standard Num
 instance:
 
-~~~ {.haskell}
+~~~
 e :: Expr Int
 e = 10*5+2
 ~~~
@@ -92,15 +92,14 @@ e = 10*5+2
 Functions are written as normal Haskell functions over `Expr`s. For
 example, a simple numeric function:
 
-~~~ {.haskell}
+~~~
 f :: Expr Int -> Expr Int -> Expr Int
 f a b = a*a - b
 ~~~
 
 Some examples of core language constructs:
 
-~~~ {.haskell}
-
+~~~
 if_ :: Computable a => Expr Bool -> a -> a -> a
 
 iterateWhile :: Computable a 
@@ -108,7 +107,6 @@ iterateWhile :: Computable a
              -> (a -> a) 
              -> a
              -> a
-
 ~~~
 
 Note that polymorphic arguments use the class `Computable` rather
@@ -143,8 +141,7 @@ also have a Functor instance.
 Here are some examples of functions for Pull arrays that exist in the
 library:
 
-~~~ {.haskell}
-
+~~~
 zipWith :: (a -> b -> c) 
         -> Pull sh a -> Pull sh b -> Pull sh c
 
@@ -157,7 +154,6 @@ foldS :: (Computable a, Computable b)
       -> (a -> b -> b)
       -> Pull (sh :. Expr Length) a
       -> Pull sh b
-
 ~~~
 
 `fromFunction` takes an index function and an extent and constructs a
@@ -247,7 +243,7 @@ spliced into a module using Template Haskell. For example you might
 have this meta-repa function in one module:
 
 ~~~
-
+x
 f :: Expr Int -> Expr Int -> Expr Int
 f a b = sumS (fromFunction (Z :. (b - a)) (\(Z :. i) -> i + a))
 
@@ -828,7 +824,7 @@ of high performance Haskell programming.
 
 Push arrays are implemented as follows:
 
-~~~ {.haskell}
+~~~
 data Push sh a = 
   Push ((Shape sh -> a -> M ()) -> M ()) (Shape sh)
 ~~~
@@ -842,7 +838,7 @@ gives push arrays their flexibility.
 
 Here are some example functions on push arrays.
 
-~~~ {.haskell}
+~~~
 enumFromTo :: Expr Int -> Expr Int
            -> Push (Z :. Expr Int) (Expr Int)
 enumFromTo f t = Push loop (Z :. t - f + 1)
