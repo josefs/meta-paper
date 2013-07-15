@@ -218,8 +218,8 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
     next c z = c + (z * z)
 \end{verbatim}
 \end{tabular}
-\label{fig:comparison}
 \caption{A comparison between programming in repa and meta-repa}
+\label{fig:comparison}
 \end{figure*}
 
 The two code fragments are quite similar, with some details being
@@ -322,8 +322,8 @@ we're representing programs.
 \begin{figure*}[t]
 \center
 \includegraphics[scale=0.8]{meta.pdf}
-\label{fig:pipeline}
 \caption{The compilation pipeline for meta-repa programs}
+\label{fig:pipeline}
 \end{figure*}
 
 This section explains most of the implementation of meta-repa. Some
@@ -432,8 +432,8 @@ data Expr a where
   ParM       :: Expr Int -> Expr (Int -> IO ())
              -> Expr (IO ())
 \end{verbatim}
-\label{fig:expr}
 \caption{A representative subset of the \texttt{Expr} data type}
+\label{fig:expr}
 \end{figure}
 
 The core language of meta-repa, represented by the `Expr` data type,
@@ -1096,8 +1096,8 @@ fft-medium & 15.51583 ms & 57.02767 ms & 16.79921 ms & 589.5525 ms & 5.415479 ms
 fft-large & 32.99549 ms & 117.4556 ms & 36.49858 ms & 1.185318 s & 11.14325 ms & 1.532703 s \\
 \hline
 \end{tabular}
-\label{tab:benchmarks}
 \caption{Performance measurements comparing meta-repa with repa}
+\label{tab:benchmarks}
 \end{table*}
 
 Table \ref{tab:benchmarks} presents benchmarks comparing the
