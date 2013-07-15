@@ -475,17 +475,16 @@ To begin with, the monadic construct contains the generic `Return`,
 constructs for creating, reading and updating mutable arrays. The
 `RunMutableArray` construct takes a monadic computation and returns a
 pure array. In that way it is similar to the ST monad
-[@launchbury1994lazy]. Compared to the state monad, the state
+[@launchbury1994lazy]. Compared to the ST monad, the state
 parameter in the type has been omitted, since there is no construct
-corresponding to `runST` with a polymorphic return type which could be
-used to pass mutable arrays outside of the scope of their monadic
+corresponding to `runST` with a polymorphic return type which could voilate
+safety by passing mutable arrays outside of the scope of their monadic
 computation.
 
 Finally, there is the parallel for-loop, `ParM`, which is the
-construct for parallel computations. 
-
-Currently it is possible to have a `ParM` inside another
-`ParM`. However, as we discuss below, our runtime system does not
+construct for parallel computations. Currently it is possible to have a
+`ParM` inside another`ParM` in the core language.
+However, as we discuss in section \ref{sec:runtime}, our runtime system does not
 allow this kind of nesting. We have not made any attempts at
 disallowing nesting in the type system. Instead, the API to meta-repa
 is designed such that nested parallel loops should never occur. This
@@ -507,12 +506,12 @@ There are a couple of things to note about the core language:
 * It has a strict semantics. In order to get maximum performance and,
   again, to be able to unbox as much as possible we have chosen a
   strict semantics for meta-repa. It also fits better with the domain
-  than lazy evaluation. When writing high performance Haskell one
+  compared to lazy evaluation. When writing high performance Haskell one
   often has to resort to inserting calls to `seq` and using bang
   patterns to get strict code. None of that is necessary when
   programming in meta-repa due to its semantics.
 
-The core language comes with an evaluation function which defined the
+The core language comes with an evaluation function which defines the
 semantics. The evaluation function is straighforward to write. It is
 also very useful for trying out the language during its development
 and as a reference semantics to test the Template Haskell against.
@@ -758,6 +757,8 @@ comprehend.
 
 ## Runtime system
 
+\label{sec:runtime}
+
 The library meta-repa relies on a small runtime system in order to set
 up the parallel computations and distribute them over the available
 processes. We have chosen to reuse the runtime system from repa by
@@ -895,7 +896,7 @@ composition instead of sequential composition. However, our current
 runtime system doesn't support that. There is still room for
 improvements.
 
-Finally, the function `force` show how Push arrays are written to
+Finally, the function `force` shows how Push arrays are written to
 memory. It can be used by the programmer to prevent fusion and make
 sure that an array is written to memory. The kernel of the resulting
 array allocates a new in-memory array and calls the kernel of the
