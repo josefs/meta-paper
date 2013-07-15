@@ -66,7 +66,7 @@ The contributions of the paper are as follows:
   showing that meta-repa is on par with, and sometimes faster than
   repa.
 
-* Instead of one array type we have two. We have included push arrays
+* Instead of one array type we have two. We have included Push arrays
   [@claessen2012expressive] in our implementation. The result is a
   simpler implementation of many array operations including stencil
   computations and although the user of our library must now use two
@@ -327,7 +327,7 @@ we're representing programs.
 \end{figure*}
 
 This section explains most of the implementation of meta-repa. Some
-details, in particular the use of push arrays are explained in section
+details, in particular the use of Push arrays are explained in section
 \ref{sec:push}.
 
 Programs in meta-repa are in fact program generators. When meta-repa
@@ -489,7 +489,7 @@ Currently it is possible to have a `ParM` inside another
 allow this kind of nesting. We have not made any attempts at
 disallowing nesting in the type system. Instead, the API to meta-repa
 is designed such that nested parallel loops should never occur. This
-has affected the push array library (covered in section
+has affected the Push array library (covered in section
 \ref{sec:push}); certain combinators use a sequential loop where they
 could have used a parallel loop in order to keep the parallelism flat.
 
@@ -559,8 +559,8 @@ Arrays are also implemented as shallow embeddings. While this is not a
 new technique, we will present enough details about the implementation
 in meta-repa to show how it contributes to writing high performance
 Haskell programs. There are two kinds of arrays in meta-repa, but we
-will focus on one of them here, pull arrays, and leave the description
-of the other kind, push array, for section \ref{sec:push}. Pull arrays
+will focus on one of them here, Pull arrays, and leave the description
+of the other kind, Push array, for section \ref{sec:push}. Pull arrays
 are defined as follows:
 
 ~~~
@@ -572,7 +572,7 @@ popular way due to its simple implementation and nice properties. In
 particular, since every element is computed independently, it is very
 easy to parallelize writing such arrays to memory.
 
-Below are some examples for functions on pull arrays:
+Below are some examples for functions on Pull arrays:
 
 ~~~
 instance P.Functor (Pull sh) where
@@ -622,15 +622,15 @@ forcePull p@(Pull ixf sh)
     arr = runMutableArray (storePull p)
 ~~~
 
-A perhaps surprising thing about pull arrays is that they can be made
+A perhaps surprising thing about Pull arrays is that they can be made
 an instance of the type class `Functor`. Since we are implementing an
 embedded language it typically means that there must be some form of
 class constraint on polymorphic functions. However, the definition of
-pull arrays is carefully chosen such that they can work with any
+Pull arrays is carefully chosen such that they can work with any
 Haskell type. It is only when actually storing the array, as in the
 `storePull` function, where there has to be a constraint on the type
-of element in the pull array. The function `storePull` uses the
-constructs for mutable arrays to write the pull array to memory. The
+of element in the Pull array. The function `storePull` uses the
+constructs for mutable arrays to write the Pull array to memory. The
 function `forShape` is a parallel for-loop which goes through all
 element in the shape of the array in parallel.
 
@@ -647,11 +647,11 @@ the repa library and enables powerful transformations of arrays. The
 implementation of meta-repa also contains many other functions for
 manipulating arrays ported from the repa library.
 
-A nice benefit of the way pull arrays are represented and using the
+A nice benefit of the way Pull arrays are represented and using the
 embedded language approach is that fusion comes for free and is
 guaranteed. Compiling meta-repa programs means producing a syntax tree
 of type `Expr`. Since this type doesn't contain the type `Pull` we
-have a static guarantee that all pull arrays will be statically
+have a static guarantee that all Pull arrays will be statically
 eliminated. A very powerful guarantee indeed. The fact that it happens
 purely as a side-effect of Haskell's evalutation is an added bonus.
 
@@ -787,14 +787,14 @@ but some things have been consiously made different. The most
 significant divergence is the choice of having two kinds of arrays.
 
 In meta-repa there are two types of arrays, delayed arrays. One of
-these types, pull arrays, were already presented in section
-\ref{sec:shallow}. The other type is push arrays, a notion originally
+these types, Pull arrays, were already presented in section
+\ref{sec:shallow}. The other type is Push arrays, a notion originally
 introduced in [@claessen2012expressive]. Push arrays shares many
-significant properties with pull arrays: they can be fused just as
+significant properties with Pull arrays: they can be fused just as
 easily, are efficiently parallelizeable, and have a `Functor`
 instance.
 
-However, push arrays are also in many ways complementary to pull
+However, Push arrays are also in many ways complementary to Pull
 arrays. The two types have different strengths:
 
 * Pull arrays can be indexed efficiently and by extension
@@ -805,7 +805,7 @@ arrays. The two types have different strengths:
   sharing computations between different array elements and generating
   code which writes multiple array elements per loop interation.
 
-It's worth noting that both pull- and push arrays can be altered to
+It's worth noting that both Pull- and Push arrays can be altered to
 efficiently support some of the features that they lack, when defined
 in their simplest form. However, based on our experience, these
 alterations lose the strong optimization guarantees; either fusion is
@@ -814,9 +814,9 @@ specifically chosen to keep the implementation of the arrays simple
 and to provide strong guarantees towards the programmer about what
 optimizations can be expected.
 
-Giving a full account of push arrays falls outside the scope of this
+Giving a full account of Push arrays falls outside the scope of this
 paper. The interested reader is refered to [@claessen2012expressive]
-where push arrays were introduced. However, we will present enough
+where Push arrays were introduced. However, we will present enough
 detail to get an appreciation for why they are useful for the purpose
 of high performance Haskell programming.
 
@@ -832,9 +832,9 @@ array. The first argument is a monadic computation which, when run,
 will write the array to memory. We refer to this computation as the
 kernel of the array. The kernel is parameterized by the operation used
 to write to memory. Parameterizing over the writing operation is what
-gives push arrays their flexibility.
+gives Push arrays their flexibility.
 
-Here are some example functions on push arrays.
+Here are some example functions on Push arrays.
 
 ~~~
 enumFromTo :: Expr Int -> Expr Int
@@ -872,30 +872,30 @@ The function `enumFromTo` is similar to the standard Haskell function
 on lists with the same name. The kernel `loop` is defined in terms of
 a parallel for-loop which writes each element.
 
-Just like pull arrays, push arrays can be made an instance of the type
+Just like Pull arrays, Push arrays can be made an instance of the type
 class `Functor` as shown in the code above. The kernel of the result
 array simply calls the kernel of the argument array but modifies the
 write function such that the elements get transformed before being
 written.
 
-The operator `+.+` is a good example of the benefits with push
-arrays. It defines concatenation along the final dimension of two push
+The operator `+.+` is a good example of the benefits with Push
+arrays. It defines concatenation along the final dimension of two Push
 arrays. (The arrays must have the same size in all the other
 dimensions, something which is not checked.) The kernel of the
-resulting push array is simply sequential composition of the kernels
+resulting Push array is simply sequential composition of the kernels
 for the two argument arrays. In the common case this will mean that
 the final array is written using two loops, each writing to its own
 part of the array. This should be compared the code generated from
-concatenation on pull array, which is a single loop containing a
+concatenation on Pull array, which is a single loop containing a
 branch which checks which argument array to read from. Concatenation
-for push arrays has effectively moved the conditional out of the loop,
+for Push arrays has effectively moved the conditional out of the loop,
 a big win in term of performance. It should be added that an even
 better implementation of concatenation would have used parallel
 composition instead of sequential composition. However, our current
 runtime system doesn't support that. There is still room for
 improvements.
 
-Finally, the function `force` show how push arrays are written to
+Finally, the function `force` show how Push arrays are written to
 memory. It can be used by the programmer to prevent fusion and make
 sure that an array is written to memory. The kernel of the resulting
 array allocates a new in-memory array and calls the kernel of the
@@ -906,10 +906,10 @@ parameter.
 
 The function `forShape` used in the definition of `force` is a
 parallel loop over shapes, and implemented in terms of `parM`. This
-function is what makes push arrays parallelizable.
+function is what makes Push arrays parallelizable.
 
-Interoperating pull arrays and push arrays is an interesting
-story. Pull arrays can easily be converted into push arrays in a way
+Interoperating Pull arrays and Push arrays is an interesting
+story. Pull arrays can easily be converted into Push arrays in a way
 that preserves fusion. In meta-repa we use the function `toPush` for
 this purpose:
 
@@ -921,10 +921,10 @@ toPush (Pull ixf sh) = Push m sh
               )
 ~~~
 
-However, there doesn't seem to be any way of converting push arrays to
-pull array without allocating memory and thereby destroying
+However, there doesn't seem to be any way of converting Push arrays to
+Pull array without allocating memory and thereby destroying
 fusion. This asymmetry might seem disturbing but is hardly surprising;
-pull- and push arrays have different strength and weaknesses so we
+Pull- and Push arrays have different strength and weaknesses so we
 should not expect to be able to convert freely between the two. In
 fact, when implementing stencil computations we will use this
 asymmetry to our advantage (see below, section \ref{sec:stencil}).
@@ -932,7 +932,7 @@ asymmetry to our advantage (see below, section \ref{sec:stencil}).
 ## FFT
 \label{sec:fft}
 
-One example algorithm where push arrays have proven valueable is FFT.
+One example algorithm where Push arrays have proven valueable is FFT.
 Below are the relevant bits of our implementation, gently beautified
 for presentation purposes.
 
@@ -965,16 +965,16 @@ The function `fft` is a Cooley-Tukey radix-2 decimation in frequency
 algorithm. There are many details here which are not important for the
 purpose of the current discussion and so we leave them out. The
 essential point is the function `unhalve` which is used to implement
-the butterfly network. It takes a push array of pairs and flattens it
-such that the first half of the resulting push array contains all the
+the butterfly network. It takes a Push array of pairs and flattens it
+such that the first half of the resulting Push array contains all the
 first components of the pairs and the second half the second
 components. The crucial bit is that the computation of the pair can be
 shared and that the two components of the pair can be written in the
 same loop iteration. It is not possible to express this kind of
-sharing using pull arrays alone.
+sharing using Pull arrays alone.
 
 In section \ref{sec:benchmarks} we present benchmarks showing that
-using push arrays translates to a real speed advantage.
+using Push arrays translates to a real speed advantage.
 
 
 ## Stencil computations
@@ -992,8 +992,8 @@ delayed representation called a cursored array, which allows LLVMs
 optimizer to recover the sharing in the stencil computation.  [@lippmeier2011efficient]
 
 In meta-repa we have solved the problem of sharing computation between
-elements by using push arrays to represent the result of the stencil
-computation. The push array allows the producer more control over the
+elements by using Push arrays to represent the result of the stencil
+computation. The Push array allows the producer more control over the
 loop that writes the array, which makes it possible to explicitily
 exploit the sharing by having a inner sequential loop that maintains
 a state. Computations that can be shared are stored in the state so
@@ -1017,9 +1017,9 @@ this is that it adds complexity to the array representations, and some
 operations, like `map`, needs a special form that preserves the
 structure of partitioned arrays.
 
-Using push arrays solve this problem quite easily. In essence, this is
+Using Push arrays solve this problem quite easily. In essence, this is
 a special case of concatenation of arrays, which we have already seen
-push arrays can do efficiently. We simply have different loops for
+Push arrays can do efficiently. We simply have different loops for
 computing the different regions.
 
 ~~~
@@ -1058,10 +1058,10 @@ stencilBlur = [stencilM| 2  4  5  4  2
                          2  4  5  4  2 |]
 ~~~
 
-A final advantage to using a push array for the result of a stencil
-computation and a pull array for the input is that it prevents two
-stencil computations from being fused, since a push array cannot be
-converted to pull array except by writing it to memory. This is an
+A final advantage to using a Push array for the result of a stencil
+computation and a Pull array for the input is that it prevents two
+stencil computations from being fused, since a Push array cannot be
+converted to Pull array except by writing it to memory. This is an
 advantage because fusing stencil computations is very bad for
 performance. So the type of the runStencil function prevents the user
 from doing something that would result in bad performance.
@@ -1143,7 +1143,7 @@ seem to exhibit a bug in the repa library. When compiled using the
 parallel runtime it shows really poor performance. For this reason we
 included the sequential benchmark which shows more reasonable running
 times. However, meta-repa still outperforms repa by almost a factor of
-four due to the use of push arrays, as explained in section
+four due to the use of Push arrays, as explained in section
 \ref{sec:fft}.
 
 The conclusion we draw from these measurements is that the methodology
@@ -1231,7 +1231,7 @@ Push arrays also come with an initial cost in that they introduce yet
 another type of arrays to the API of the library. However, considering
 the performance advantages, the simplified implementation of stencil
 computations and its more useful default behaviour when it comes to
-fusion, we consider push arrays to be a definite advantage.
+fusion, we consider Push arrays to be a definite advantage.
 
 # Related work
 
@@ -1287,7 +1287,7 @@ meta-repa, but targets GPU computations instead. An interesting bit of
 future work would be to combine the two libraries to give a uniform
 language which integrates both CPU and GPU computations.
 
-The notion of pull arrays is by now a well established way of
+The notion of Pull arrays is by now a well established way of
 representing arrays pioneered by [@elliott2003compiling].	   
 The guarantee of fusion for arrays in meta-repa is the same as in
 Feldspar [@axelsson2011design] and repa. It stems from the
@@ -1300,7 +1300,7 @@ Feldspar [@axelsson2011design] and Nikola [@mainland2010nikola].
 Stencil computations lends themselves very well to functional parallel
 programming as has been noted in recent papers
 [@lippmeier2011efficient,@orchard2010ypnos]. Our characterization of
-stencil computations as functions from pull- to push arrays seems new
+stencil computations as functions from Pull- to Push arrays seems new
 although some instances of this principle already occurred in
 [@claessen2012expressive].
 
