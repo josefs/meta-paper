@@ -29,13 +29,13 @@ every function inlined and all array computations fused. These things
 can be achieved by still allowing a rich and expressive programming
 interface.
 
-To demonstrate the viability of our methodology, this paper presents
-case study, meta-repa, which is a reimplementation parts of the repa
+To demonstrate the viability of our methodology, this paper presents a
+case study, meta-repa, which is a reimplementation of parts of the repa
 library [@keller2010regular]. The library meta-repa (the name comes
 from the fact that it implements repa using meta-programming
 techniques) is described in some detail to show how achieve the
 advantages of EDSLs when used for Haskell programming. We include
-measurements agains repa to show that the code generated from
+measurements against repa to show that the code generated from
 meta-repa can indeed compete with a well-designed and mature,
 high-performance library.
 
@@ -131,7 +131,7 @@ The `Shape` type is used to represent array indices of varying
 dimensionality. The type parameter determines the dimension of the
 index. For example the type paremeter `DIM2` indicates a
 two-dimensional index.  This works much the same as in repa, though it
-is implmented in a slightly different way. This is discussed in more
+is implemented in a slightly different way. This is discussed in more
 detail in section \ref{sec:shape}.
 
 The library includes functions for manipulating arrays. Many of them
@@ -264,7 +264,7 @@ func = $(translate f)
 
 The library meta-repa comes with a set of guarantees towards the
 programmer. These contracts helps the programmer understand the
-efficiency of a particular program. They also how precisely when a
+efficiency of a particular program. They also show precisely when a
 programmer can introduce abstraction without losing any performance.
 
 * *All types are monomorphised and unboxed*.
@@ -360,7 +360,7 @@ transformation moves code up the syntax tree to that it is computed as
 early as possible. It also moves constant expressions out of loops.
 
 Another popular way to achieve CSE is to represent the syntax tree as
-a dag and thereby get sharing as a side effect of the
+a DAG and thereby get sharing as a side effect of the
 representation. We've chosed to use a simpler tree based
 representation with an explicit `let` construct for sharing which
 allows us to make local decisions about what to share and what to
@@ -438,8 +438,8 @@ data Expr a where
 
 The core language of meta-repa, represented by the `Expr` data type,
 is a standard typed higher order abstract syntax representation
-implemented using GADTs. A fragment with the most relevant construcs
-is shown in picture \ref{fig:expr}.
+implemented using GADTs. A fragment with the most relevant constructs
+is shown in Figure \ref{fig:expr}.
 
 The first two constructors `Var` and `Value` are used for compilation
 and evaluation and will never be present in trees produced by code
@@ -457,7 +457,7 @@ is worth pointing out that meta-repa does not employ observable
 sharing [@claessen1999observable] so no new `Let` constructors are
 introduced when the program is represented by the `Expr` type.
 
-The constructor `If` and `IterateWhile` are unsurprising constrol flow
+The constructor `If` and `IterateWhile` are unsurprising control flow
 constructs for pure computations.
 
 There are two types of in-memory arrays in the code language. These
@@ -569,7 +569,7 @@ data Pull sh a = Pull (Shape sh -> a) (Shape sh)
 
 Representing arrays as functions from index to value has become a
 popular way due to its simple implementation and nice properties. In
-particular, since every element is computer independently, it is very
+particular, since every element is computed independently, it is very
 easy to parallelize writing such arrays to memory.
 
 Below are some examples for functions on pull arrays:
@@ -753,7 +753,7 @@ Being able to program on the value level rather than the type level is
 clear improvement for the implementation of the library. It makes the
 code more readable and maintainable. Another small win is that the API
 of meta-repa will contain less class constraints, since it uses the
-`Shapely` class very seldomly. This makes the types easer to read and
+`Shapely` class very seldomly. This makes the types easier to read and
 comprehend.
 
 ## Runtime system
@@ -776,7 +776,7 @@ flat parallelism. This means that it is not possible to nest the
 `ParM` construct in the core language and some care has gone into
 designing the API in meta-repa to avoid nesting. However, nested
 parallelism is a much harder problem than flat parallelism and
-developing a completely new runtime for meta-repa would have outside
+developing a completely new runtime for meta-repa would have been outside
 the scope of the project.
 
 # Push arrays
@@ -809,7 +809,7 @@ It's worth noting that both pull- and push arrays can be altered to
 efficiently support some of the features that they lack, when defined
 in their simplest form. However, based on our experience, these
 alterations lose the strong optimization guarantees; either fusion is
-lost, or sometime the generated code is slow.  In meta-repa we have
+lost, or sometimes the generated code is slow.  In meta-repa we have
 specifically chosen to keep the implementation of the arrays simple
 and to provide strong guarantees towards the programmer about what
 optimizations can be expected.
@@ -980,7 +980,7 @@ using push arrays translates to a real speed advantage.
 ## Stencil computations
 \label{sec:stencil}
 
-Stencil computations consists of computing elements in the result
+Stencil computations consist of computing elements in the result
 array from a fixed pattern of neighboring elements in the input. Since
 adjacent elements share neighbors there is a lot of potential for
 sharing computations between elements. Exploiting this is not possible
@@ -999,7 +999,7 @@ exploit the sharing by having a inner sequential loop that maintains
 a state. Computations that can be shared are stored in the state so
 that they can be used when computing subsequent elements.
 
-Another problem with stencil computations are handling the boundarys.
+Another problem with stencil computations are handling the boundaries.
 When computing elements along the edges of the array the stencil falls
 outside the bounds of the array. This must be handled specially to
 avoid out-of-bounds arrays accesses. However, performing this
@@ -1288,7 +1288,7 @@ future work would be to combine the two libraries to give a uniform
 language which integrates both CPU and GPU computations.
 
 The notion of pull arrays is by now a well established way of
-representing arrays pioneer by [@elliott2003compiling].	   
+representing arrays pioneered by [@elliott2003compiling].	   
 The guarantee of fusion for arrays in meta-repa is the same as in
 Feldspar [@axelsson2011design] and repa. It stems from the
 implementation technique pioneered by Feldspar.
