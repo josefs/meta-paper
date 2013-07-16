@@ -618,16 +618,17 @@ forcePull p@(Pull ixf sh)
 ~~~
 
 A perhaps surprising thing about Pull arrays is that they can be made
-an instance of the type class `Functor`. Since we are implementing an
-embedded language it typically means that there must be some form of
-class constraint on polymorphic functions. However, the definition of
+an instance of the type class `Functor`. Polymorphic functions in embedded
+languages typically need some form of class constraint.
+However, the definition of
 Pull arrays is carefully chosen such that they can work with any
 Haskell type. It is only when actually storing the array, as in the
 `storePull` function, where there has to be a constraint on the type
 of element in the Pull array. The function `storePull` uses the
 constructs for mutable arrays to write the Pull array to memory. The
-function `forShape` is a parallel for-loop which goes through all
-element in the shape of the array in parallel.
+function `forShape` is a parallel for-loop, defined in terms of `parM`,
+which goes through all
+elements in the shape of the array in parallel.
 
 The function `fromFunction` provides an easy way to create arrays,
 it's simply an alias for the `Pull` constructor. The `index` function
