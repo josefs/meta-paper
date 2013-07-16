@@ -547,9 +547,11 @@ having to add new constructors in the core language and translation
 functions for those. 
 
 In meta-repa there are two constructs which are implemented as shallow
-embeddings; arrays and monads. Implementing the monad as a shallow
+embeddings; arrays and monads. The monad provided by meta-repa is simply
+called `M` and provides wrappers for all the monadic operations in the core
+language. Implementing `M` as a shallow
 embedding has the advantage of proving an instance of the `Monad` type
-class which enables the programmer to use do-notation and reuse all
+class. This instance enables the programmer to use do-notation and reuse all
 the monadic combinators in the standard library. For the details of
 how the shallow embedding for monads work we refer the reader to the
 paper [@persson2012generic].
@@ -829,10 +831,11 @@ data Push sh a =
 ~~~
 
 The second argument to the `Push` constructor is the extent of the
-array. The first argument is a monadic computation which, when run,
-will write the array to memory. We refer to this computation as the
-kernel of the array. The kernel is parameterized by the operation used
-to write to memory. Parameterizing over the writing operation is what
+array. The first argument is a monadic computation (using the `M`
+monad introduced in section \ref{sec:shallow}) which, when run, will
+write the array to memory. We refer to this computation as the kernel
+of the array. The kernel is parameterized by the operation used to
+write to memory. Parameterizing over the writing operation is what
 gives Push arrays their flexibility.
 
 Here are some example functions on Push arrays.
