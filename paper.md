@@ -728,34 +728,11 @@ inRange (shL :. l) (shU :. u) (sh :. i)
   = l <= i && i < u && inRange shL shU sh
 ~~~
 
-There are still some functions on `Shape` which require a type class
-to be implemented. These are the functions which doesn't take any
-arguments of type `Shape` but whose result are of type `Shape`.
-
-~~~
-class Shapely sh where
-  mkShape :: Expr Index -> Shape sh
-  toShape :: Int -> Expr (UArray Int Length)
-          -> Shape sh
-
-instance Shapely Z where
-  mkShape _ = Z
-  toShape _ _ = Z
-
-instance Shapely sh => Shapely (sh :. Expr Length)
-    where
-  mkShape i = mkShape i :. i
-  toShape i arr
-    = toShape (i+1) arr :.
-      (readIArray arr (P.fromIntegral i))
-~~~
-
 Being able to program on the value level rather than the type level is
 clear improvement for the implementation of the library. It makes the
 code more readable and maintainable. Another small win is that the API
-of meta-repa will contain less class constraints, since it uses the
-`Shapely` class very seldomly. This makes the types easier to read and
-comprehend.
+of meta-repa contains less class constraints, making the types
+easier to read and comprehend.
 
 ## Runtime system
 
