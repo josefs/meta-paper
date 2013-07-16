@@ -348,7 +348,11 @@ The type `Expr` uses higher order abstract syntax to represent
 programs. This representation is convenient for programming with but
 somewhat less ideal for rewriting programs. The AST is therefore
 converted into a first order representation, which we will refer to as
-`FOAS`.
+`FOAS`. A possible implementation would have been to skip the `Expr`
+type and generate the first order representation directly. We have
+kept the higher order represtentation partly because it helps maintain
+the type safety of the implementation and partly because it allows us to
+write a well typed, tagless interpreter.
 
 Two optimizations are performed on the `FOAS` representation: common
 subexpression elimination (CSE) and code motion. CSE finds identical
