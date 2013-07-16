@@ -822,7 +822,7 @@ enumFromTo :: Expr Int -> Expr Int
            -> Push (Z :. Expr Int) (Expr Int)
 enumFromTo f t = Push loop (Z :. t - f + 1)
   where loop w = parM (t - f + 1) (\i ->
-  	       	   w (Z :. i) (i + f)
+                   w (Z :. i) (i + f)
                  )
 
 instance Functor (Push sh) where
@@ -843,7 +843,8 @@ force :: Storable a =>
 force (Push f l) = Push f' l
   where f' k =
     do arr <- newArrayE (size l)
-       f (\sh a -> writeArrayE arr (toIndex l sh) a)
+       f (\sh a ->
+            writeArrayE arr (toIndex l sh) a)
        forShape l $ \i -> do
          a <- readArrayE arr i
          k (fromIndex l i) a
