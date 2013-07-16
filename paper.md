@@ -504,7 +504,7 @@ There are a couple of things to note about the core language:
 * It is monomorphic. Having a monomorphic language is important to be
   able to always generate unboxed Haskell code. 
 
-  Having a monomorphic core language does not stop the programmer from
+  A monomorphic core language does not stop the programmer from
   writing polymorpic programs or using overloading. Functions can be
   written which work for several different base types. The only
   restriction is that when compiling a meta-repa program, all types
