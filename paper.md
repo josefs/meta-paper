@@ -608,12 +608,6 @@ traverse :: Pull sh a -> (Shape sh -> Shape sh')
 traverse (Pull ixf sh) shFn elemFn
   = Pull (elemFn ixf) (shFn sh)
 
-backpermute :: Shape sh2
-            -> (Shape sh2 -> Shape sh1)
-            -> Pull sh1 a -> Pull sh2 a
-backpermute sh2 perm (Pull ixf sh1)
-  = Pull (ixf . perm) sh2
-
 forcePull :: Storable a =>
              Pull sh (Expr a) -> Pull sh (Expr a)
 forcePull p@(Pull ixf sh)
@@ -643,7 +637,7 @@ lists with the same name. The slightly non-trivial part is that the
 shape of the final array is the intersection of the shapes of the
 input arrays.
 
-The functions `traverse` and `backpermute` are directly ported from
+The function `traverse` is directly ported from
 the repa library and enables powerful transformations of arrays. The
 implementation of meta-repa also contains many other functions for
 manipulating arrays ported from the repa library.
