@@ -881,13 +881,9 @@ elements to the newly allocated array. It then iterates through the
 array in memory writing all the elements using the write function
 parameter.
 
-The function `forShape` used in the definition of `force` is a
-parallel loop over shapes, and implemented in terms of `parM`. This
-function is what makes Push arrays parallelizable.
-
 Interoperating Pull arrays and Push arrays is an interesting
 story. Pull arrays can easily be converted into Push arrays in a way
-that preserves fusion. In meta-repa we use the function `toPush` for
+that preserves fusion. In meta-repa the function `toPush` is used for
 this purpose:
 
 ~~~
@@ -1148,7 +1144,7 @@ Advantages:
   the particular implementation, the programming style can become more
   natural. In our particular case-study the programmer doesn't need to
   concern himself with writing bang patterns or inline pragmas to make
-  the code fast. Relieving the programming of having to inserting
+  the code fast. Relieving the programmer of having to inserting
   these annotations removes a whole category of potential performance
   bug which can go unnoticed and be difficult to pin down.
 
