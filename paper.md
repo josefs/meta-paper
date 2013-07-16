@@ -365,15 +365,18 @@ early as possible. It also moves constant expressions out of loops.
 
 Another popular way to achieve CSE is to represent the syntax tree as
 a DAG and thereby get sharing as a side effect of the
-representation. We've chosed to use a simpler tree based
+representation. We've chosen to use a simpler tree based
 representation with an explicit `let` construct for sharing which
 allows us to make local decisions about what to share and what to
 duplicate.
 
-Once the `FOAS` representation is transformed a wrapper is added
-around it which gives the expression a type which makes it easier to
-call from Haskell. Then, as a last step the code is translated to
-Template Haskell and spliced into the module by GHC.
+All the translations and transformations explained above are performed
+by the `transform` function mentioned in section
+\ref{sec:programming}. After the `FOAS` representation is added the
+`transform` function adds a wrapper around its argument giving it a
+type which makes it easier to call from Haskell. Then, as a last step
+the code is translated to Template Haskell and spliced into the module
+by GHC.
 
 We would like to point out that the use of Template Haskell is just a
 matter of convenience and not of fundamental importance. Another
