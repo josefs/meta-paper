@@ -1293,6 +1293,11 @@ to Geoffrey Mainland.
 
 We would like to thank the members of the functional programming group
 at Chalmers who gave us valuable feedback during a presentation of
-meta-repa.
+meta-repa. We also thank the reviewers for many insightful comments which
+helped to improve the paper alot.
+
+The second author is partially funded by the Swedish Foundation for
+Strategic Research through the the Resource Aware Functional 
+Programming (RAW FP) Project.
 
 # References
