@@ -591,7 +591,7 @@ easy to parallelize writing such arrays to memory.
 Below are some examples for functions on Pull arrays:
 
 ~~~
-instance P.Functor (Pull sh) where
+instance Functor (Pull sh) where
   fmap f (Pull ixf sh) = Pull (f . ixf) sh
 
 storePull :: (Computable a, Storable (Internal a)) =>
