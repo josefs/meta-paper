@@ -539,7 +539,7 @@ types which have been reified from the Haskell types parameter for
 | Lambda Int Type FOAS
 ~~~
 
-The constructor `IterateWhile has gotten an additional argument, which is a
+The constructor `IterateWhile` has gotten an additional argument, which is a
 value representing the type of the state passed around during iteration.
 The `Lambda` constructor is now completely first order compared to `Expr`.
 The first argument is an integer used to represent the variable bound in the
