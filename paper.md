@@ -532,14 +532,18 @@ representation, `FOAS`, which is used for transforming the
 program. The type `FOAS` has all the same constructs as `Expr` but in
 a first order representation with explicit variables and explicit
 types which have been reified from the Haskell types parameter for
-`Expr`. Below is the constructor for the pure iteration construct in `FOAS`.
+`Expr`. Below are some example constructors from `FOAS`:
 
 ~~~
-IterateWhile Type FOAS FOAS FOAS
+| IterateWhile Type FOAS FOAS FOAS
+| Lambda Int Type FOAS
 ~~~
 
-The first argument to `IterateWhile` is a value representing the type
-of the state passed around during iteration.
+The constructor `IterateWhile has gotten an additional argument, which is a
+value representing the type of the state passed around during iteration.
+The `Lambda` constructor is now completely first order compared to `Expr`.
+The first argument is an integer used to represent the variable bound in the
+body. The second argument is the type of the bound variable.
 
 ## Shallow Embeddings for Arrays
 \label{sec:shallow}
