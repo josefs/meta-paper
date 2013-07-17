@@ -504,11 +504,15 @@ There are a couple of things to note about the core language:
 * It is monomorphic. Having a monomorphic language is important to be
   able to always generate unboxed Haskell code. 
 
-  A monomorphic core language does not stop the programmer from
-  writing polymorpic programs or using overloading. Functions can be
-  written which work for several different base types. The only
-  restriction is that when compiling a meta-repa program, all types
-  must be instantiated to monomorphic types.
+  The core language are monomorphic in the same sense as e.g. the C
+  language is monomorphic. The language constructs, such as the `If`
+  constructor can be used with many different types. But in each
+  particular use of the construct it is applied to a particular
+  type. However, since the language is embedded in Haskell, the
+  programmer can use Haskell's polymorphism and overloading to
+  write generic and reuseable functions. The only restriction is that
+  when compiling a meta-repa program, all types must be instantiated
+  to monomorphic types.
 
 * It has a strict semantics. In order to get maximum performance and,
   again, to be able to unbox as much as possible we have chosen a
