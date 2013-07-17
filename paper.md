@@ -1135,6 +1135,18 @@ with eight bit color depth. Finally, the benchmarks fft-small, -medium
 and -large runs FFT on a randomized, complex valued, one-dimensional
 array of length $2^{16}$, $2^{17}$ and $2^{18}$ respectively.
 
+The matrix multiplication benchmarks provides the closest comparison
+between the code generation quality of repa and meta-repa. Both
+implementations run essentially the same code and the only difference
+is how well it has been optimized. The situation is a little different
+for the stencil bencharks, blur and sobel. As explained in section
+\ref{sec:stencil}, repa relies on LLVM to share memory accesses
+between loop iterations whereas meta-repa generates code with sharing
+directly. The sharing is done slightly differently which accounts for
+some of the differences in the timings. Finally, the FFT benchmarks
+run different algorithms and are included to demonstrate the advantage
+of using Push arrays.
+
 In the matrix multiplication benchmarks meta-repa has a small but
 consistent advantage over repa. Both implementations scales well to
 four cores. The blur benchmark exhibits a peculiar behaviour. Without
