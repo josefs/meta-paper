@@ -975,7 +975,7 @@ the two components of the pair can be written in the same loop
 iteration. It is not possible to express this kind of sharing using
 Pull arrays alone.
 
-In section \ref{sec:benchmarks} we present benchmarks showing that
+Section \ref{sec:benchmarks} present benchmarks showing that
 using Push arrays translates to a real speed advantage.
 
 
@@ -993,8 +993,8 @@ In repa this problem has been addressed by using a different kind of
 delayed representation called a cursored array, which allows LLVMs
 optimizer to recover the sharing in the stencil computation.  [@lippmeier2011efficient]
 
-In meta-repa we have solved the problem of sharing computation between
-elements by using Push arrays to represent the result of the stencil
+In meta-repa the problem of sharing computation between
+elements is solved by using Push arrays to represent the result of the stencil
 computation. The Push array allows the producer more control over the
 loop that writes the array, which makes it possible to explicitily
 exploit the sharing by having a inner sequential loop that maintains
@@ -1006,8 +1006,8 @@ When computing elements along the edges of the array the stencil falls
 outside the bounds of the array. This must be handled specially to
 avoid out-of-bounds arrays accesses. However, performing this
 boundschecking for array access in the stencil computation would
-clearly be a big performance penalty. Therefore we want to compute the
-boundary regions of the array separately so that the bounds-checking
+clearly be a big performance penalty. Therefore the boundary regions of
+the array should be computed separately so that the bounds-checking
 is only performed where it is needed. The central region can then be
 computed efficiently. Since the boundry regions are generally small
 compared to the central region, the computation still performs well
@@ -1025,39 +1025,36 @@ Push arrays can do efficiently. We simply have different loops for
 computing the different regions.
 
 ~~~
-
 runStencil :: Computable a
            => Boundary a
            -> Stencil (sh :. Expr Int) a b
            -> Pull (sh :. Expr Int) a
            -> Push (sh :. Expr Int) b
-
 ~~~
 
 The first argument is a value that describes how the boundarys are
 handled. The `Stencil` type describes the stencil computation. It
-contains the functions that are used to initilize and update the
+contains the functions used to initilize and update the
 state, and to use the state to compute the elements of the result.
 This gives a lot of control when defining the stencil, allowing for
 explicitly exploiting sharing, but it also means that it is more work
 to define the stencil.
 To save the programmer the trouble of having to define the stencil by
-hand we provide a quasi-quoter to help with defining stencils, in the
+hand a quasi-quoter is provided to help with defining stencils, in the
 same way that repa does.
 
 ~~~
+sobel :: Stencil DIM2 (Expr Float) (Expr Float)
+sobel = [stencilM| -1 0 1
+                   -2 0 2
+                   -1 0 1 |]
 
-stencilSobel :: Stencil DIM2 (Expr Float) (Expr Float)
-stencilSobel = [stencilM| -1 0 1
-                          -2 0 2
-                          -1 0 1 |]
-
-stencilBlur :: Stencil DIM2 (Expr Float) (Expr Float)
-stencilBlur = [stencilM| 2  4  5  4  2
-                         4  9 12  9  4
-                         5 12 15 12  5
-                         4  9 12  9  4
-                         2  4  5  4  2 |]
+blur :: Stencil DIM2 (Expr Float) (Expr Float)
+blur = [stencilM| 2  4  5  4  2
+                  4  9 12  9  4
+                  5 12 15 12  5
+                  4  9 12  9  4
+                  2  4  5  4  2 |]
 ~~~
 
 A final advantage to using a Push array for the result of a stencil
@@ -1065,7 +1062,7 @@ computation and a Pull array for the input is that it prevents two
 stencil computations from being fused, since a Push array cannot be
 converted to Pull array except by writing it to memory. This is an
 advantage because fusing stencil computations is very bad for
-performance. So the type of the runStencil function prevents the user
+performance. So the type of the `runStencil` function prevents the user
 from doing something that would result in bad performance.
 
 # Measurements
