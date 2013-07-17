@@ -929,9 +929,9 @@ asymmetry to our advantage (see below, section \ref{sec:stencil}).
 ## FFT
 \label{sec:fft}
 
-One example algorithm where Push arrays have proven valueable is FFT.
-Below are the relevant bits of our implementation, gently beautified
-for presentation purposes.
+One example algorithm where Push arrays have proven valueable is the
+Fast Fourier Transform. Below are the relevant bits of our
+implementation, gently beautified for presentation purposes.
 
 ~~~
 fft :: (Computable a, Num a, Storable (Internal a))
@@ -949,6 +949,7 @@ butterfly ws vs = unhalve $ toPushS $
                   zipWith3 dft2 ws ys zs
   where
     (ys,zs) = halve vs
+    dft2 w x0 x1 = (x0+x1, (x0-x1)*w)
 
 unhalve :: (Computable a)
         => Push DIM1 (a,a) -> Push DIM1 a
@@ -959,16 +960,19 @@ unhalve (Push f (Z :. l))
 ~~~
 
 The function `fft` is a Cooley-Tukey radix-2 decimation in frequency
-algorithm. There are many details here which are not important for the
-purpose of the current discussion and so we leave them out. The
-essential point is the function `unhalve` which is used to implement
-the butterfly network. It takes a Push array of pairs and flattens it
-such that the first half of the resulting Push array contains all the
-first components of the pairs and the second half the second
-components. The crucial bit is that the computation of the pair can be
-shared and that the two components of the pair can be written in the
-same loop iteration. It is not possible to express this kind of
-sharing using Pull arrays alone.
+algorithm. There are many details and functions which are not
+important for the purpose of the current discussion and so they have
+been left out. The function `halve` splits a Pull array in half, the
+operators `.>>.` and `.<<.` performs bitwise right- and left shift and
+`ilog2` performs integer logarithm base 2. The essential point is the
+function `unhalve` which is used to implement the butterfly
+network. It takes a Push array of pairs and flattens it such that the
+first half of the resulting Push array contains all the first
+components of the pairs and the second half the second components. The
+crucial bit is that the computation of the pair can be shared and that
+the two components of the pair can be written in the same loop
+iteration. It is not possible to express this kind of sharing using
+Pull arrays alone.
 
 In section \ref{sec:benchmarks} we present benchmarks showing that
 using Push arrays translates to a real speed advantage.
