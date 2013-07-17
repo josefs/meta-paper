@@ -232,9 +232,10 @@ different . Here are the differences:
 * The meta-repa code uses the function `if_` rather than Haskell's
   `if then else`.
 * The repa code uses bang-patterns and INLINE pragmas to make sure
-  that the worker functions are properly inlined and static. In
-  meta-repa everything is inlined by default and it is completely
-  static.
+  that the worker functions are properly inlined and static, which is
+  important for performance. In meta-repa everything is inlined by
+  default. Since meta-repa uses unboxed values internally all
+  functions are also guaranteed to be strict.
 
 
 When you have written your meta-repa code it can be translated and
