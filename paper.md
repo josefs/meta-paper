@@ -612,6 +612,14 @@ fromFunction ixf sh = Pull ixf sh
 index :: Pull sh a -> Shape sh -> a
 index (Pull ixf s) = ixf
 
+halve :: Pull (sh :. Expr Index) a ->
+        (Pull (sh :. Expr Index) a
+        ,Pull (sh :. Expr Index) a)
+halve (Pull ixf (sh :. l))
+  = (Pull ixf (sh :. (l `div` 2))
+    ,Pull ixf' (sh :. ((l+1) `div` 2)))
+ where ixf' (sh :. ix) = ixf (sh :. ix + (l `div` 2))
+
 zipWith :: (a -> b -> c)
         -> Pull sh a -> Pull sh b -> Pull sh c
 zipWith f (Pull ixf1 sh1) (Pull ixf2 sh2)
@@ -648,7 +656,10 @@ elements in the shape of the array in parallel.
 
 The function `fromFunction` provides an easy way to create arrays,
 it's simply an alias for the `Pull` constructor. The `index` function
-provides a means for indexing into the array. A slightly more involved
+provides a means for indexing into the array. In general Pull arrays can
+not only be efficiently indexed but also subdivided into smaller arrays.
+An example is the `halve` function which splits an array in half along
+the last dimension. A slightly more involved
 example is `zipWith` which works much like the standard function on
 lists with the same name. The slightly non-trivial part is that the
 shape of the final array is the intersection of the shapes of the
@@ -964,7 +975,7 @@ unhalve (Push f (Z :. l))
 The function `fft` is a Cooley-Tukey radix-2 decimation in frequency
 algorithm. There are many details and functions which are not
 important for the purpose of the current discussion and so they have
-been left out. The function `halve` splits a Pull array in half, the
+been left out. The
 operators `.>>.` and `.<<.` performs bitwise right- and left shift and
 `ilog2` performs integer logarithm base 2. The essential point is the
 function `unhalve` which is used to implement the butterfly
@@ -1020,10 +1031,14 @@ this is that it adds complexity to the array representations, and some
 operations, like `map`, needs a special form that preserves the
 structure of partitioned arrays.
 
-Using Push arrays solve this problem quite easily. In essence, this is
-a special case of concatenation of arrays, which we have already seen
-Push arrays can do efficiently. We simply have different loops for
-computing the different regions.
+In meta-repa this problem is solved by representing stencil
+computations as functions from Pull arrays to Push arrays. The
+partitioning of the input array into different regions is done using
+the Pull array representation since they can be efficiently subdivided
+(see e.g. `halve` in section \ref{sec:shallow}). Each region is then
+computed separately and produces a Push array each. These Push arrays
+can then be efficiently concatenated, similarly to the `+.+` operator shown
+above. The generated code will contain a specialized loop for each region.
 
 ~~~
 runStencil :: Computable a
