@@ -371,13 +371,13 @@ representation with an explicit `let` construct for sharing which
 allows us to make local decisions about what to share and what to
 duplicate.
 
-All the translations and transformations explained above are performed
-by the `transform` function mentioned in section
-\ref{sec:programming}. After the `FOAS` representation is added the
-`transform` function adds a wrapper around its argument giving it a
-type which makes it easier to call from Haskell. Then, as a last step
-the code is translated to Template Haskell and spliced into the module
-by GHC.
+After the transformations on the `FOAS` representation the code is
+translated to Template Haskell and spliced into the module by GHC. The
+generated code will have a type where everything is unboxed, which
+makes it a little awkward to interface with. The function `translate`,
+mentioned in section \ref{sec:programming}, can be used by the
+programmer as a wrapper around the generated code to make it easier to
+call from Haskell.
 
 We would like to point out that the use of Template Haskell is just a
 matter of convenience and not of fundamental importance. Another
