@@ -1254,7 +1254,7 @@ a host language for *embedding* domain specific languages. Examples
 include [@reid1999prototyping; @hudak1997domain; @bjesse1998lava;@mainland2010nikola;@svensson2011obsidian;@axelsson2011design].
 
 The approach of combining deep and shallow embeddings is explained in
-[@svenningsson12:DeepShallow] but has been used previously in
+[@svenningsson12:DeepShallow] and has been used previously in
 languages such as Feldspar [@axelsson2011design].
 
 One particular feature of the methodology presented in this paper is
@@ -1271,10 +1271,10 @@ language pays off by making the problem of optimization feasible.
 
 GHC also has another mechanism for enabling the library writer to
 implement new optimiations: rewrite rules
-[@jones2001playing]. Although a very tool for writing high performance
+[@jones2001playing]. Although a very useful tool for writing high performance
 Haskell it has limited expressivity. It is not clear that it is even
 possible to use rewrite rules to implement common subexpression
-eleminitation and code motion featured in meta-repa. In our design,
+elimination and code motion featured in meta-repa. In our design,
 the full expressivity of Haskell is at hand when writing new
 optimizations.
 
@@ -1326,7 +1326,7 @@ to Geoffrey Mainland.
 We would like to thank the members of the functional programming group
 at Chalmers who gave us valuable feedback during a presentation of
 meta-repa. We also thank the reviewers for many insightful comments which
-helped to improve the paper alot.
+helped to improve the paper.
 
 The second author is partially funded by the Swedish Foundation for
 Strategic Research through the the Resource Aware Functional 
