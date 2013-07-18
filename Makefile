@@ -1,3 +1,6 @@
+hask031.pdf: paper.pdf
+	cp paper.pdf hask031.pdf
+
 paper.pdf: paper.tex
 	pdflatex paper.tex
 
