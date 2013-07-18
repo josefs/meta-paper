@@ -871,15 +871,12 @@ instance Functor (Push sh) where
 
 force :: Storable a =>
          Push sh (Expr a)
-      -> Push sh (Expr a)
-force (Push f l) = Push f' l
-  where f' k =
-    do arr <- newArrayE (size l)
-       f (\sh a ->
-            writeArrayE arr (toIndex l sh) a)
-       forShape l $ \i -> do
-         a <- readArrayE arr i
-         k (fromIndex l i) a
+      -> Pull sh (Expr a)
+force p@(Push f l) = Pull ixf l
+  where 
+    ixf ix = readIArray arr (toIndex l ix)
+    arr = runMutableArray (storePush p)
+
 ~~~
 
 The function `enumFromTo` is similar to the standard Haskell function
