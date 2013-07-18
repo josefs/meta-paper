@@ -677,11 +677,12 @@ function `forcePull` can be used to achieve this.
 
 The class `Storable` used in the types of `storePull` and `forcePull`
 represents all primitive types which can be unboxed. It is a synonym
-for the class `Typeable` in the `base` package and the `Unbox` class
-from the package `vector`. The type `Internal` is an associated type
-in the `Computable` class which translates types Haskell types such as
-pairs to their representation in meta-repa. Continuing the example
-from section \ref{sec:programming}, `(Expr Int, Expr Double)` will be
+for the class `Typeable`, an internal class in meta-repa to reflect
+type information to the value level, and the `Unbox` class from the
+package `vector`. The type `Internal` is an associated type in the
+`Computable` class which translates types Haskell types such as pairs
+to their representation in meta-repa. Continuing the example from
+section \ref{sec:programming}, `(Expr Int, Expr Double)` will be
 translated to `Expr (Int,Double)`.
 
 ## From type level to value level programming
