@@ -1306,6 +1306,14 @@ generating Haskell was sufficient from a performance perspective and
 very convenient as Haskell allows us to generate relatively high
 level code compared to LLVM.
 
+PanTHeon [@seefried2004optimising] is an image processing library
+which uses Template Haskell to perform domain specific optimizations
+as compile time. The main difference with our work is that PanTHeon
+uses the full syntax of Template Haskell instead of a restricted
+domain specific language. Therefore PanTHeon can not offer any kind of
+optimization guarantees. Additionally, PanTHeon does not use shallow
+embeddings as meta-repa does.
+
 The latest version of Nikola [@nikola] is very similar in design to
 meta-repa, but targets GPU computations instead. An interesting bit of
 future work would be to combine the two libraries to give a uniform
