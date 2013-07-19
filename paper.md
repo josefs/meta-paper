@@ -612,13 +612,14 @@ fromFunction ixf sh = Pull ixf sh
 index :: Pull sh a -> Shape sh -> a
 index (Pull ixf s) = ixf
 
-halve :: Pull (sh :. Expr Index) a ->
-        (Pull (sh :. Expr Index) a
+halve :: Pull (sh :. Expr Index) a
+     -> (Pull (sh :. Expr Index) a
         ,Pull (sh :. Expr Index) a)
 halve (Pull ixf (sh :. l))
   = (Pull ixf (sh :. (l `div` 2))
     ,Pull ixf' (sh :. ((l+1) `div` 2)))
- where ixf' (sh :. ix) = ixf (sh :. ix + (l `div` 2))
+ where ixf' (sh :. ix)
+         = ixf (sh :. ix + (l `div` 2))
 
 zipWith :: (a -> b -> c)
         -> Pull sh a -> Pull sh b -> Pull sh c
