@@ -251,7 +251,7 @@ different . Here are the differences:
   underlying array and return a Pull array which reads from it.
 * The meta-repa code uses the function `if_` rather than Haskell's
   `if then else`.
-* The repa code uses bang-patterns and INLINE pragmas to make sure
+* The repa code uses bang-patterns and `INLINE` pragmas to make sure
   that the worker functions are properly inlined and static, which is
   important for performance. In meta-repa everything is inlined by
   default. Since meta-repa uses unboxed values internally all
@@ -354,8 +354,8 @@ details, in particular the use of Push arrays are explained in section
 Programs in meta-repa are in fact program generators. When meta-repa
 functions are run they produce abstract syntax trees which are then
 further translated and transformed. Figure \ref{fig:pipeline} gives an
-overview of this process. Boxes represents abstract syntax trees and
-circles represents transformations and translations. First the code
+overview of this process. Boxes represent abstract syntax trees and
+circles represent transformations and translations. First the code
 within the Template Haskell splice is run. This will compute a term of
 type `Expr`, a GADT which ensures type safety of program by
 construction. Since all functions defined using the meta-repa library
@@ -511,7 +511,7 @@ computation.
 
 Finally, there is the parallel for-loop, `ParM`, which is the
 construct for parallel computations. Currently it is possible to have a
-`ParM` inside another`ParM` in the core language.
+`ParM` inside another `ParM` in the core language.
 However, as we discuss in section \ref{sec:runtime}, our runtime system does not
 allow this kind of nesting. We have not made any attempts at
 disallowing nesting in the type system. Instead, the API to meta-repa
@@ -816,7 +816,7 @@ the scope of the project.
 \label{sec:push}
 
 The programmers interface in meta-repa is heavily inspired by repa,
-but some things have been consiously made different. The most
+but some things have been consciously made different. The most
 significant divergence is the choice of having two kinds of arrays.
 
 In meta-repa there are two types of arrays, delayed arrays. One of
@@ -1039,13 +1039,13 @@ exploit the sharing by having a inner sequential loop that maintains
 a state. Computations that can be shared are stored in the state so
 that they can be used when computing subsequent elements.
 
-Another problem with stencil computations are handling the boundaries.
+Another problem with stencil computations is handling the boundaries.
 When computing elements along the edges of the array the stencil falls
 outside the bounds of the array. This must be handled specially to
 avoid out-of-bounds arrays accesses. However, performing this
-boundschecking for array access in the stencil computation would
-clearly be a big performance penalty. Therefore the boundary regions of
-the array should be computed separately so that the bounds-checking
+boundschecking for every array access in the stencil computation would
+clearly be a big performance penalty. Therefore the boundary regions
+of the array should be computed separately so that the bounds-checking
 is only performed where it is needed. The central region can then be
 computed efficiently. Since the boundry regions are generally small
 compared to the central region, the computation still performs well
