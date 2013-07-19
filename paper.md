@@ -129,18 +129,36 @@ are a different kind of delayed representation that supports a
 different set of operations. Pull arrays are discussed further in
 \ref{sec:shallow}.
 Push arrays are discussed in detail in \ref{sec:push}.
-The `Shape` type is used to represent array indices of varying
-dimensionality. The type parameter determines the dimension of the
-index. For example the type paremeter `DIM2` indicates a
-two-dimensional index.  This works much the same as in repa, though it
-is implemented in a slightly different way. This is discussed in more
-detail in section \ref{sec:shape}.
+The `Shape` type is used to represent array indices of different
+dimensions. This is discussed in more detail in section
+\ref{sec:shape}.
+Both types of arrays have instances of the class `Arr`:
+
+~~~
+
+class Arr arr where
+  toPush :: arr sh a -> Push sh a
+  ixMap :: (Shape sh -> Shape sh) 
+        -> arr sh a
+        -> arr sh a
+  extent :: arr sh a -> (Shape sh)
+
+~~~
+
+`toPush` converts any array to a Push array. The conversion is
+has zero runtime cost. To convert from a Push array to a Pull array
+the `force` funtion is used. `force` writes the array to memory in
+order convert it to a Pull array, so it takes linear time to execute.
+
+`ixMap` transforms the index space of the array.
+
+`extent` returns the size of the array.
 
 The library includes functions for manipulating arrays. Many of them
 correspond to list functions found in the Prelude. Both array types
 also have a Functor instance.
 
-Here are some examples of functions for Pull arrays that exist in the
+Here are some examples of functions for Pull arrays that are in the
 library:
 
 ~~~
@@ -158,6 +176,7 @@ foldS :: (Computable a, Computable b)
       -> Pull sh b
 ~~~
 
+`zipWith` corresponds to the standard list function of the same name.
 `fromFunction` takes an index function and an extent and constructs a
 Pull array. `foldS` performs a sequential fold on the outer dimension
 of an array with at least one dimension, and returns an array that has
