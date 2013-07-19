@@ -116,7 +116,9 @@ the core language. For example, it is more convenient to work with the
 type `(Expr Int, Expr Double)` rather than `Expr (Int, Double)`
 because the former can be constructed and deconstructed with Haskell's
 ordinary tuple syntax. `Computable` handles the tupling and untupling
-in the core language automatically.
+in the core language automatically. `Computable` also has instances
+for functions over other `Computable` types, and values of type `M a`,
+which is the interface for monadic computations in meta-repa.
 
 
 The library for array computations are implemented as a shallow
