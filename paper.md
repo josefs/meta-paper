@@ -191,18 +191,17 @@ first argument and $z_i$ comes from the second argument.
 \begin{tabular}{p{\columnwidth} | p{\columnwidth}}
 
 \begin{verbatim}
-type Complex = (Double, Double)
-type ComplexPlane r = Array r DIM2 Complex
-type StepPlane r = Array r DIM2 (Complex,Int)
+type ComplexPlane r = Array r DIM2 (Complex Double)
+type StepPlane r = Array r DIM2 (Complex Double,Int)
 
 step :: ComplexPlane U 
      -> StepPlane U
      -> IO (StepPlane U)
 step cs zs = computeP $ zipWith stepPoint cs zs
   where
-    stepPoint :: Complex
-              -> (Complex,Int)
-              -> (Complex,Int)
+    stepPoint :: Complex Double
+              -> (Complex Double,Int)
+              -> (Complex Double,Int)
     {-# INLINE stepPoint #-}
     stepPoint !c (!z,!i) =
         if magnitude z' > 4.0 
@@ -210,7 +209,8 @@ step cs zs = computeP $ zipWith stepPoint cs zs
           else (z',i+1)
       where
         z' = next c z
-    next :: Complex -> Complex -> Complex
+    next :: Complex Double -> Complex Double 
+         -> Complex Double
     {-# INLINE next #-}
     next !c !z = c + (z * z)
 \end{verbatim}
@@ -242,10 +242,13 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
 \label{fig:comparison}
 \end{figure*}
 
-The two code fragments are quite similar, with some details being
-different . Here are the differences:
+The two code fragments are quite similar, but with certain differnces:
 
 * `Int` and `Double` becomes `Expr Int` and `Expr Double`.
+* We cannot use the standrad Haskell type `Complex` in the meta-repa
+  code. This is because we can't write a `RealFloat` instance for
+  `Expr Double`, which is required by `Complex`. Instead we define our
+  own `Complex` type.
 * meta-repa does not have an explicitily manifest array type. Instead,
   the forcePull function is used to write a Pull array to an
   underlying array and return a Pull array which reads from it.
