@@ -595,8 +595,8 @@ Below are some examples for functions on Pull arrays:
 instance Functor (Pull sh) where
   fmap f (Pull ixf sh) = Pull (f . ixf) sh
 
-storePull :: (Computable a, Storable (Internal a)) =>
-             Pull sh a
+storePull :: (Computable a, Storable (Internal a))
+          => Pull sh a
           -> M (Expr (MArray (Internal a)))
 storePull (Pull ixf sh) = 
   do arr <- newArrayE (size sh)
