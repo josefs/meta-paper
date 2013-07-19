@@ -261,28 +261,30 @@ The two code fragments are quite similar, but with certain differnces:
   functions are also guaranteed to be strict.
 
 
-When you have written your meta-repa code it can be translated and
-spliced into a module using Template Haskell. For example you might
-have this meta-repa function in one module:
+To use a meta-repa function it has to be translated into a Template
+Haskell syntax tree and spliced into the module where we wish to use
+it. For example, we might have this meta-repa function in a module:
 
 ~~~
 
-f :: Expr Int -> Expr Int -> Expr Int
-f a b = sumS (enumFromTo a b)
+foo :: Expr Int -> Expr Int -> Expr Int
+foo a b = sumAllS (enumFromTo a b)
 
 ~~~
 
-In another module which imports that function, the function can be
-spliced in like this:
+The function `translate` produces a Template Haskell syntax tree from
+the a meta-repa program and can be spliced into another like this:
 
 ~~~
 
-func :: Int -> Int -> Int
-func = $(translate f)
+f :: Int -> Int -> Int
+f = $(translate foo)
 
 ~~~
 
-
+The meta-repa function of type `Expr Int -> Expr Int -> Expr Int`
+compiles into a Haskell function of type `Int -> Int -> Int`, which
+can now be used.
 
 ## Contract towards the programmer
 
