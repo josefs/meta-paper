@@ -1,5 +1,7 @@
-hask031.pdf: paper.pdf
-	cp paper.pdf hask031.pdf
+hask031.pdf: paper.tex
+	sed '/\\bibliography{bib}/ r paper.bbl' paper.tex > hask031.tex
+	pdflatex hask031.tex
+	pdflatex hask031.tex
 
 paper.pdf: paper.tex
 	pdflatex paper.tex
