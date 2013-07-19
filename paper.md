@@ -891,8 +891,25 @@ instance Functor (Push sh) where
   where m k = m1 k >>
               m2 (\(sh:.i) a -> k (sh:.(i+l1)) a)
 
-force :: Storable a =>
-         Push sh (Expr a)
+storePush :: (Computable a, Storable (Internal a))
+       => Push sh a
+       -> M (Expr (MArray (Internal a)))
+storePush (Push m sh) =
+  do arr <- newArrayE (size sh)
+     m $ \i a -> writeArrayE arr
+                             (toIndex sh i)
+                             (internalize a)
+     P.return arr
+
+toPush :: Pull sh a -> Push sh a
+toPush (Pull ixf sh) = Push m sh
+  where m k = forShape sh (\i ->
+                let ish = fromIndex sh i
+                in  k ish (ixf ish)
+              )
+
+force :: Storable a
+      => Push sh (Expr a)
       -> Pull sh (Expr a)
 force p@(Push f l) = Pull ixf l
   where 
@@ -928,35 +945,26 @@ composition instead of sequential composition. However, our current
 runtime system doesn't support that. There is still room for
 improvements.
 
-Finally, the function `force` shows how Push arrays are written to
-memory. It can be used by the programmer to prevent fusion and make
-sure that an array is written to memory. The kernel of the resulting
-array allocates a new in-memory array and calls the kernel of the
-input array with a write function as a parameter which writes all the
-elements to the newly allocated array. It then iterates through the
-array in memory writing all the elements using the write function
-parameter.
+The function `storePush` shows how Push arrays are written to memory.
+It allocates a fresh mutable array in memory. Then the kernel of the
+Push array argument is invoked by giving it a writing operation which
+writes to the newly allocated array. When the kernel is run the array
+will have been populated with elements and is returned as the result
+of the function.
 
 Interoperating Pull arrays and Push arrays is an interesting
 story. Pull arrays can easily be converted into Push arrays in a way
 that preserves fusion. In meta-repa the function `toPush` is used for
-this purpose:
-
-~~~
-toPush (Pull ixf sh) = Push m sh
-  where m k = forShape sh (\i ->
-                let ish = fromIndex sh i
-                in  k ish (ixf ish)
-              )
-~~~
-
-However, there doesn't seem to be any way of converting Push arrays to
+this purpose. However, there doesn't seem to be any way of converting 
+Push arrays to
 Pull array without allocating memory and thereby destroying
 fusion. This asymmetry might seem disturbing but is hardly surprising;
 Pull- and Push arrays have different strength and weaknesses so we
 should not expect to be able to convert freely between the two. In
 fact, when implementing stencil computations we will use this
 asymmetry to our advantage (see below, section \ref{sec:stencil}).
+For situations when the programmer wants to avoid fusion and make sure to
+allocate an array to memory the function `force` can be used.
 
 ## FFT
 \label{sec:fft}
