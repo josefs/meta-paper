@@ -121,16 +121,15 @@ for functions over other `Computable` types, and values of type `M a`,
 which is the interface for monadic computations in meta-repa.
 
 
-The library for array computations are implemented as a shallow
-embedding on top of the core language.  There are two different types
-of arrays in meta-repa, Pull arrays and Push arrays. Pull arrays
+The library for array computations has two different types
+of arrays; Pull arrays and Push arrays. Pull arrays
 correspond to the delayed array representation in repa. Push arrays
 are a different kind of delayed representation that supports a
 different set of operations. Pull arrays are discussed further in
 \ref{sec:shallow}.
 Push arrays are discussed in detail in \ref{sec:push}.
-The `Shape` type is used to represent array indices of different
-dimensions. This is discussed in more detail in section
+The `Shape` type is used to represent array indices of varying
+dimensionality. This is discussed in more detail in section
 \ref{sec:shape}.
 Both types of arrays have instances of the class `Arr`:
 
