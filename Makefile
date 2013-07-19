@@ -1,5 +1,5 @@
 hask031.pdf: paper.pdf
-	sed '/\\bibliography{bib}/ r paper.bbl' paper.tex > hask031.tex
+	sed '/\\bibliography{bib}/ r paper.bbl' paper.tex | sed '/\\bibliography{bib}/ d'  > hask031.tex
 	pdflatex hask031.tex
 	pdflatex hask031.tex
 
