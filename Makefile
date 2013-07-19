@@ -1,4 +1,4 @@
-hask031.pdf: paper.tex
+hask031.pdf: paper.pdf
 	sed '/\\bibliography{bib}/ r paper.bbl' paper.tex > hask031.tex
 	pdflatex hask031.tex
 	pdflatex hask031.tex
