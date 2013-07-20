@@ -1222,15 +1222,16 @@ aspects of using the embedded langauge approach.
 
 Advantages:
 
-* More natural programming model.
+* Tailored programming model.
 
   Since the embedded language can be given a semantics which matches
-  the particular implementation, the programming style can become more
-  natural. In our particular case-study the programmer doesn't need to
-  concern himself with writing bang patterns or inline pragmas to make
-  the code fast. Relieving the programmer of having to inserting
-  these annotations removes a whole category of potential performance
-  bug which can go unnoticed and be difficult to pin down.
+  the particular domain, the programming style can become more
+  tailored to the problem. In our particular case-study the
+  programmer doesn't need to concern himself with writing bang
+  patterns or inline pragmas to make the code fast. Relieving the
+  programmer of having to inserting these annotations removes a whole
+  category of potential performance bug which can go unnoticed and be
+  difficult to pin down.
 
 * Performance guarantees
 
@@ -1252,7 +1253,10 @@ Advantages:
 
   Even though we generate Haskell code and make use of the
   optimizations provided by GHC and whichever backend it uses, it is
-  possible to write domain specific optimizations
+  possible to write domain specific optimizations. In our case-study
+  we have implemented common subexpression elimination and code motion.
+  But given that our methodology gives access to the syntax tree of the
+  program, any kind of optimization can be implemented.
 
 * Value level programming instead of type level programming
 
@@ -1270,8 +1274,10 @@ Drawbacks:
   write `Expr Int` instead of `Int`.
 
 Weighing the advantages and drawbacks against each other our
-conclusion is clear. Using the embedded language approach is a net win
-in the long term for writing high performance application in Haskell.
+conclusion is clear, at least for the case-study presented in this
+paper. The embedded language approach can be a net win in the long
+term for writing high performance applications in Haskell. In order to
+definitively prove our thesis more case-studies are needed.
 
 Push arrays also come with an initial cost in that they introduce yet
 another type of arrays to the API of the library. However, considering
