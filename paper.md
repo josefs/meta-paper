@@ -250,16 +250,15 @@ The two code fragments are quite similar, but with certain differnces:
   `Expr Double`, which is required by `Complex`. Instead we define our
   own `Complex` type.
 * meta-repa does not have an explicitily manifest array type. Instead,
-  the forcePull function is used to write a Pull array to an
+  the `forcePull` function is used to write a Pull array to an
   underlying array and return a Pull array which reads from it.
 * The meta-repa code uses the function `if_` rather than Haskell's
   `if then else`.
 * The repa code uses bang-patterns and `INLINE` pragmas to make sure
-  that the worker functions are properly inlined and static, which is
+  that the worker functions are properly inlined and strict, which is
   important for performance. In meta-repa everything is inlined by
   default. Since meta-repa uses unboxed values internally all
-  functions are also guaranteed to be strict.
-
+  functions are also guaranteed to be strict and unboxed.
 
 To use a meta-repa function it has to be translated into a Template
 Haskell syntax tree and spliced into the module where we wish to use
