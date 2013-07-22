@@ -73,7 +73,7 @@ The contributions of the paper are as follows:
   different types of arrays we consider the resulting API to be easier
   to use. We explain the details in section \ref{sec:push}.
 
-The reposity containing the code for meta-repa can be found at:
+The repository containing the code for meta-repa can be found at:
 \url{http://github.com/jankner/meta-repa}
 
 # Programming in meta-repa
@@ -146,7 +146,7 @@ class Arr arr where
 
 `toPush` converts any array to a Push array. The conversion is
 has zero runtime cost. To convert from a Push array to a Pull array
-the `force` funtion is used. `force` writes the array to memory in
+the `force` function is used. `force` writes the array to memory in
 order convert it to a Pull array, so it takes linear time to execute.
 
 `ixMap` transforms the index space of the array.
@@ -182,7 +182,7 @@ of an array with at least one dimension, and returns an array that has
 one less dimension than the input.
 
 In figure \ref{fig:comparison} is a comparison between the
-implementation of a function in repa and meta-repa. The fucntion
+implementation of a function in repa and meta-repa. The function
 `step` is a part in calculating the Mandelbrot set. It calculates
 $z_{i+1} = z_i + c$ for a given complex plane, where $c$ comes from the
 first argument and $z_i$ comes from the second argument.
@@ -242,14 +242,14 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
 \label{fig:comparison}
 \end{figure*}
 
-The two code fragments are quite similar, but with certain differnces:
+The two code fragments are quite similar, but with certain differences:
 
 * `Int` and `Double` becomes `Expr Int` and `Expr Double`.
-* We cannot use the standrad Haskell type `Complex` in the meta-repa
+* We cannot use the Standford Haskell type `Complex` in the meta-repa
   code. This is because we can't write a `RealFloat` instance for
   `Expr Double`, which is required by `Complex`. Instead we define our
   own `Complex` type.
-* meta-repa does not have an explicitily manifest array type. Instead,
+* meta-repa does not have an explicitly manifest array type. Instead,
   the `forcePull` function is used to write a Pull array to an
   underlying array and return a Pull array which reads from it.
 * The meta-repa code uses the function `if_` rather than Haskell's
@@ -292,7 +292,7 @@ programmer. These contracts helps the programmer understand the
 efficiency of a particular program. They also show precisely when a
 programmer can introduce abstraction without losing any performance.
 
-* *All types are monomorphised and unboxed*.
+* *All types are monomorphized and unboxed*.
 
   In particular, expressions of type `Expr Int` will be compiled to
   `Int#`, `Expr Float` to `Float#`, pairs to unboxed pairs and so
@@ -366,7 +366,7 @@ construction. Since all functions defined using the meta-repa library
 are really Haskell functions they will simply compute new syntax
 trees. The net effect will be that the code in the functions will be
 inlined (unless prevented by the programmer). The inlining happens
-purely as a result of Haskell's evalutation, there is no code in the
+purely as a result of Haskell's evaluation, there is no code in the
 meta-repa library which performs any inlining.
 
 The type `Expr` uses higher order abstract syntax to represent
@@ -375,7 +375,7 @@ somewhat less ideal for rewriting programs. The AST is therefore
 converted into a first order representation, which we will refer to as
 `FOAS`. A possible implementation would have been to skip the `Expr`
 type and generate the first order representation directly. We have
-kept the higher order represtentation partly because it helps maintain
+kept the higher order representation partly because it helps maintain
 the type safety of the implementation and partly because it allows us to
 write a well typed, tagless interpreter.
 
@@ -509,7 +509,7 @@ constructs for creating, reading and updating mutable arrays. The
 pure array. In that way it is similar to the ST monad
 [@launchbury1994lazy]. Compared to the ST monad, the state
 parameter in the type has been omitted, since there is no construct
-corresponding to `runST` with a polymorphic return type which could voilate
+corresponding to `runST` with a polymorphic return type which could violate
 safety by passing mutable arrays outside of the scope of their monadic
 computation.
 
@@ -535,7 +535,7 @@ There are a couple of things to note about the core language:
   particular use of the construct it is applied to a particular
   type. However, since the language is embedded in Haskell, the
   programmer can use Haskell's polymorphism and overloading to
-  write generic and reuseable functions. The only restriction is that
+  write generic and reusable functions. The only restriction is that
   when compiling a meta-repa program, all types must be instantiated
   to monomorphic types.
 
@@ -548,7 +548,7 @@ There are a couple of things to note about the core language:
   programming in meta-repa due to its semantics.
 
 The core language comes with an evaluation function which defines the
-semantics. The evaluation function is straighforward to write. It is
+semantics. The evaluation function is straightforward to write. It is
 also very useful for trying out the language during its development
 and as a reference semantics to test the Template Haskell against.
 
@@ -574,7 +574,7 @@ body. The second argument is the type of the bound variable.
 \label{sec:shallow}
 
 The implementation of meta-repa follows the methodology of combining
-deep and shallow embeddings descibed in
+deep and shallow embeddings described in
 [@svenningsson12:DeepShallow]. The type `Expr` is a deeply embedded
 core language which contains all the language constructs necessary to
 generate efficient code from any meta-repa program. On top of the core
@@ -701,7 +701,7 @@ guaranteed. Compiling meta-repa programs means producing a syntax tree
 of type `Expr`. Since this type doesn't contain the type `Pull` we
 have a static guarantee that all Pull arrays will be statically
 eliminated. A very powerful guarantee indeed. The fact that it happens
-purely as a side-effect of Haskell's evalutation is an added bonus.
+purely as a side-effect of Haskell's evaluation is an added bonus.
 
 Although fusion is often what the programmer wants, there are
 occasions when it is good to be able to disable it. An example is when
@@ -742,7 +742,7 @@ instance Shape sh => Shape (sh :. Int) where
 ~~~
 
 In meta-repa, thanks to the meta programming approach, shapes can be
-represented by an ordinary data type definiton.
+represented by an ordinary data type definition.
 
 ~~~
 data Z
@@ -756,7 +756,7 @@ data Shape sh where
 
 Defining the `Shape` type like a GADT makes programming with is a
 lot more natural. Many of the functions which had to be implemented in
-the `Shape` type class in repa can now be implemeted as ordinary
+the `Shape` type class in repa can now be implemented as ordinary
 functions.
 
 ~~~
@@ -838,9 +838,9 @@ arrays. The two types have different strengths:
   can also be decomposed into subarrays. Pull arrays also supports
   pointwise zipping.
 
-* Push arrays can efficiently be concatenated. Futhermore, they allow
+* Push arrays can efficiently be concatenated. Furthermore, they allow
   sharing computations between different array elements and generating
-  code which writes multiple array elements per loop interation.
+  code which writes multiple array elements per loop iteration.
 
 It's worth noting that both Pull- and Push arrays can be altered to
 efficiently support some of the features that they lack, when defined
@@ -852,7 +852,7 @@ and to provide strong guarantees towards the programmer about what
 optimizations can be expected.
 
 Giving a full account of Push arrays falls outside the scope of this
-paper. The interested reader is refered to [@claessen2012expressive]
+paper. The interested reader is referred to [@claessen2012expressive]
 where Push arrays were introduced. However, we will present enough
 detail to get an appreciation for why they are useful for the purpose
 of high performance Haskell programming.
@@ -868,8 +868,8 @@ The second argument to the `Push` constructor is the extent of the
 array. The first argument is a monadic computation (using the `M`
 monad introduced in section \ref{sec:shallow}) which, when run, will
 write the array to memory. We refer to this computation as the kernel
-of the array. The kernel is parameterized by the operation used to
-write to memory. Parameterizing over the writing operation is what
+of the array. The kernel is parametrized by the operation used to
+write to memory. Parametrizing over the writing operation is what
 gives Push arrays their flexibility.
 
 Here are some example functions on Push arrays.
@@ -955,7 +955,7 @@ writes to the newly allocated array. When the kernel is run the array
 will have been populated with elements and is returned as the result
 of the function.
 
-Interoperating Pull arrays and Push arrays is an interesting
+Inter-operating Pull arrays and Push arrays is an interesting
 story. Pull arrays can easily be converted into Push arrays in a way
 that preserves fusion. In meta-repa the function `toPush` is used for
 this purpose. However, there doesn't seem to be any way of converting 
@@ -972,7 +972,7 @@ allocate an array to memory the function `force` can be used.
 ## FFT
 \label{sec:fft}
 
-One example algorithm where Push arrays have proven valueable is the
+One example algorithm where Push arrays have proven valuable is the
 Fast Fourier Transform. Below are the relevant bits of our
 implementation, gently beautified for presentation purposes.
 
@@ -1038,7 +1038,7 @@ optimizer to recover the sharing in the stencil computation.  [@lippmeier2011eff
 In meta-repa the problem of sharing computation between
 elements is solved by using Push arrays to represent the result of the stencil
 computation. The Push array allows the producer more control over the
-loop that writes the array, which makes it possible to explicitily
+loop that writes the array, which makes it possible to explicitly
 exploit the sharing by having a inner sequential loop that maintains
 a state. Computations that can be shared are stored in the state so
 that they can be used when computing subsequent elements.
@@ -1047,11 +1047,11 @@ Another problem with stencil computations is handling the boundaries.
 When computing elements along the edges of the array the stencil falls
 outside the bounds of the array. This must be handled specially to
 avoid out-of-bounds arrays accesses. However, performing this
-boundschecking for every array access in the stencil computation would
+bounds-checking for every array access in the stencil computation would
 clearly be a big performance penalty. Therefore the boundary regions
 of the array should be computed separately so that the bounds-checking
 is only performed where it is needed. The central region can then be
-computed efficiently. Since the boundry regions are generally small
+computed efficiently. Since the boundary regions are generally small
 compared to the central region, the computation still performs well
 overall.
 
@@ -1078,9 +1078,9 @@ runStencil :: Computable a
            -> Push (sh :. Expr Int) b
 ~~~
 
-The first argument is a value that describes how the boundarys are
+The first argument is a value that describes how the boundaries are
 handled. The `Stencil` type describes the stencil computation. It
-contains the functions used to initilize and update the
+contains the functions used to initialize and update the
 state, and to use the state to compute the elements of the result.
 This gives a lot of control when defining the stencil, allowing for
 explicitly exploiting sharing, but it also means that it is more work
@@ -1182,7 +1182,7 @@ The matrix multiplication benchmarks provides the closest comparison
 between the code generation quality of repa and meta-repa. Both
 implementations run essentially the same code and the only difference
 is how well it has been optimized. The situation is a little different
-for the stencil bencharks, blur and sobel. As explained in section
+for the stencil benchmarks, blur and sobel. As explained in section
 \ref{sec:stencil}, repa relies on LLVM to share memory accesses
 between loop iterations whereas meta-repa generates code with sharing
 directly. The sharing is done slightly differently which accounts for
@@ -1211,14 +1211,14 @@ library for high performance computing developed over several years.
 # Discussion
 
 This paper presents a methodology for using embedded domain specific
-langauges to implement high performance Haskell programs. It comes
-with a complete example which shows the viablity of the approach.
+languages to implement high performance Haskell programs. It comes
+with a complete example which shows the viability of the approach.
 
 ## Summary
 
 Out methodology has some pros and cons which we have mentioned
-thoughout the paper. Here is a concise summary of the different
-aspects of using the embedded langauge approach.
+throughout the paper. Here is a concise summary of the different
+aspects of using the embedded language approach.
 
 Advantages:
 
@@ -1244,7 +1244,7 @@ Advantages:
   Due to using an embedded language, inlining comes for free and by
   default. The implementation of meta-repa doesn't have to have any
   code to performing inlining and substitution, it simply relies on
-  Haskell's evalutation.
+  Haskell's evaluation.
 
   In a similar manner, fusion also comes for free, thanks to
   well-chosen representations of arrays.
@@ -1321,7 +1321,7 @@ undecidable problem. Again, formulating a limited, domain specific
 language pays off by making the problem of optimization feasible.
 
 GHC also has another mechanism for enabling the library writer to
-implement new optimiations: rewrite rules
+implement new optimizations: rewrite rules
 [@jones2001playing]. Although a very useful tool for writing high performance
 Haskell it has limited expressivity. It is not clear that it is even
 possible to use rewrite rules to implement common subexpression
@@ -1333,7 +1333,7 @@ A big influence for this work, naturally, is the repa library
 [@keller2010regular]. It has proven to be a very nice library to work
 with and reimplement, during the course of implementing
 meta-repa. Repa has in many way been ideal to use as a vehicle to
-compare our embedded langauge approach to regular Haskell programming.
+compare our embedded language approach to regular Haskell programming.
 
 Henning Thielemann has developed a family of libraries for audio
 processing, called "synthesizer" [@synthesizer]. One particular member
