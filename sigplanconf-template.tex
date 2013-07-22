@@ -20,7 +20,7 @@
 %-----------------------------------------------------------------------------
 
 
-\documentclass[preprint]{sigplanconf}
+\documentclass{sigplanconf}
 
 % The following \documentclass options may be useful:
 %
@@ -46,9 +46,15 @@ $endif$
 
 \begin{document}
 
-\conferenceinfo{Haskell Symposium '13}{2013-09-23, Boston} 
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\exclusivelicense
+\conferenceinfo{Haskell~'13}{September 23--24, 2013, Boston, MA, USA} 
 \copyrightyear{2013} 
-\copyrightdata{[to be supplied]} 
+\copyrightdata{978-1-4503-2383-3/13/09} 
+\doi{2502323.2502325} 
 
 \titlebanner{Submitted to Haskell Symposium 2013}        % These are ignored unless
 %\preprintfooter{short description of paper}   % 'preprint' option specified.
@@ -92,13 +98,14 @@ their usefulness for writing certain high performance kernels such as
 FFT.
 \end{abstract}
 
-%\category{CR-number}{subcategory}{third-level}
+\category{D.1.1}{Programming Techniques}{Applicative (Functional) Programming}
+\category{D.3.4}{Processors}{Code generation}
 
 %\terms
 %term1, term2
 
 \keywords
-EDSL, array programming, optimization, meta programming
+EDSL; array programming; optimization; meta programming
 
 $body$
 %% \section{Introduction}
