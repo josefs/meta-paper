@@ -81,12 +81,12 @@ The repository containing the code for meta-repa can be found at:
 
 The basic unit of a meta-repa program are values of the type `Expr a`,
 which represent expressions in the core language. For example, a
-simple numeric expression can be written using the standard Num
+simple numeric expression can be written using the standard `Num`
 instance:
 
 ~~~
-e :: Expr Int
-e = 10*5+2
+ex :: Expr Int
+ex = 10*5+2
 ~~~
 
 Functions are written as normal Haskell functions over `Expr`s. For
@@ -120,45 +120,19 @@ in the core language automatically. `Computable` also has instances
 for functions over other `Computable` types, and values of type `M a`,
 which is the interface for monadic computations in meta-repa.
 
-
 The library for array computations has two different types
 of arrays; Pull arrays and Push arrays. Pull arrays
 correspond to the delayed array representation in repa. Push arrays
 are a different kind of delayed representation that supports a
-different set of operations. Pull arrays are discussed further in
-\ref{sec:shallow}.
-Push arrays are discussed in detail in \ref{sec:push}.
-The `Shape` type is used to represent array indices of varying
-dimensionality. This is discussed in more detail in section
-\ref{sec:shape}.
-Both types of arrays have instances of the class `Arr`:
+different set of operations. The implementation of these arrays are discussed
+further in section \ref{sec:shallow} and \ref{sec:push} respectively.
+The `Shape` type is used to represent array indexes of varying
+dimensionality.
 
-~~~
-
-class Arr arr where
-  toPush :: arr sh a -> Push sh a
-  ixMap :: (Shape sh -> Shape sh) 
-        -> arr sh a
-        -> arr sh a
-  extent :: arr sh a -> (Shape sh)
-
-~~~
-
-`toPush` converts any array to a Push array. The conversion is
-has zero runtime cost. To convert from a Push array to a Pull array
-the `force` function is used. `force` writes the array to memory in
-order convert it to a Pull array, so it takes linear time to execute.
-
-`ixMap` transforms the index space of the array.
-
-`extent` returns the size of the array.
-
-The library includes functions for manipulating arrays. Many of them
-correspond to list functions found in the Prelude. Both array types
-also have a Functor instance.
-
-Here are some examples of functions for Pull arrays that are in the
-library:
+The meta-repa library includes functions for manipulating arrays. Many of them
+similar to list functions found in the Haskell Prelude. Both array
+types also have a Functor instance. Further examples of functions on
+Pull arrays that are in the library:
 
 ~~~
 zipWith :: (a -> b -> c) 
@@ -175,13 +149,14 @@ foldS :: (Computable a, Computable b)
       -> Pull sh b
 ~~~
 
-`zipWith` corresponds to the standard list function of the same name.
-`fromFunction` takes an index function and an extent and constructs a
-Pull array. `foldS` performs a sequential fold on the outer dimension
-of an array with at least one dimension, and returns an array that has
-one less dimension than the input.
+The function `zipWith` works much in the same way as the standard list
+function of the same name. To construct Pull arrays one can use the
+function `fromFunction` by giving it an index function and an
+extent. The function `foldS` performs a sequential fold on the outer
+dimension of an array with at least one dimension, and returns an
+array that has one less dimension than the input.
 
-In figure \ref{fig:comparison} is a comparison between the
+Figure \ref{fig:comparison} shows a comparison between the
 implementation of a function in repa and meta-repa. The function
 `step` is a part in calculating the Mandelbrot set. It calculates
 $z_{i+1} = z_i + c$ for a given complex plane, where $c$ comes from the
@@ -242,14 +217,14 @@ step cs zs = forcePull $ zipWith stepPoint cs zs
 \label{fig:comparison}
 \end{figure*}
 
-The two code fragments are quite similar, but with certain differences:
+The two code fragments are quite similar, but with noticable differences:
 
 * `Int` and `Double` becomes `Expr Int` and `Expr Double`.
-* We cannot use the Standford Haskell type `Complex` in the meta-repa
-  code. This is because we can't write a `RealFloat` instance for
+* We cannot use the standard Haskell type `Complex` in the meta-repa
+  code. The reason is because we can't write a `RealFloat` instance for
   `Expr Double`, which is required by `Complex`. Instead we define our
   own `Complex` type.
-* meta-repa does not have an explicitly manifest array type. Instead,
+* In meta-repa there is no explicitly manifest array type. Instead,
   the `forcePull` function is used to write a Pull array to an
   underlying array and return a Pull array which reads from it.
 * The meta-repa code uses the function `if_` rather than Haskell's
@@ -265,20 +240,16 @@ Haskell syntax tree and spliced into the module where we wish to use
 it. For example, we might have this meta-repa function in a module:
 
 ~~~
-
 foo :: Expr Int -> Expr Int -> Expr Int
 foo a b = sumAllS (enumFromTo a b)
-
 ~~~
 
 The function `translate` produces a Template Haskell syntax tree from
 the a meta-repa program and can be spliced into another like this:
 
 ~~~
-
 f :: Int -> Int -> Int
 f = $(translate foo)
-
 ~~~
 
 The meta-repa function of type `Expr Int -> Expr Int -> Expr Int`
