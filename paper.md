@@ -672,13 +672,14 @@ the repa library and enables powerful transformations of arrays. The
 implementation of meta-repa also contains many other functions for
 manipulating arrays ported from the repa library.
 
-A nice benefit of the way Pull arrays are represented and using the
-embedded language approach is that fusion comes for free and is
+A nice benefit of the way Pull arrays are represented and the use of
+the embedded language approach is that fusion comes for free and is
 guaranteed. Compiling meta-repa programs means producing a syntax tree
 of type `Expr`. Since this type doesn't contain the type `Pull` we
 have a static guarantee that all Pull arrays will be statically
-eliminated. A very powerful guarantee indeed. The fact that it happens
-purely as a side-effect of Haskell's evaluation is an added bonus.
+eliminated. This is a very powerful guarantee indeed. The fact Pull
+arrays are eliminated purely as a side-effect of Haskell's evaluation
+is an added bonus, which simplifies the implementation significantly.
 
 Although fusion is often what the programmer wants, there are
 occasions when it is good to be able to disable it. An example is when
