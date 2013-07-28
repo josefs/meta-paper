@@ -273,15 +273,19 @@ programmer can introduce abstraction without losing any performance.
   the final Haskell code is generated, all types will be monomorphic and
   unboxed.
 
+\pagebreak
+
 * *Every function is inlined by default*. 
 
   In high performance code, inlining functions is the right default
-  behaviour and generally increases the performance a lot. When the
-  programmer wants to prevent inlining, for whatever reason, it is
-  simple to create a locally defined function with the `let_`
-  combinator provided by our library.
+  behaviour and generally increases the performance considerably.
+  Apart from removing the overhead of function calls, inlining typically
+  also enable further optimizations by bringing separate pieces of code
+  together.
 
-\pagebreak
+  When the programmer wants to prevent inlining, for whatever reason,
+  it is simple to create a locally defined function with the `let_`
+  combinator provided by our library.
 
 * *Operations on arrays are fused automatically*.
 
@@ -1212,6 +1216,8 @@ Advantages:
   becomes much simpler, to the point where it is possible to give
   strong performance guarantees.
 
+\pagebreak
+
 * Inlining and fusion for free
 
   Due to using an embedded language, inlining comes for free and by
@@ -1238,6 +1244,7 @@ Advantages:
   helps to simplify types in the API and makes the library easier to
   use and comprehend.
 
+\noindent
 Drawbacks:
 
 * Having to implement an embedded language requires an upfront
