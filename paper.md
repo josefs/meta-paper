@@ -281,6 +281,8 @@ programmer can introduce abstraction without losing any performance.
   simple to create a locally defined function with the `let_`
   combinator provided by our library.
 
+\pagebreak
+
 * *Operations on arrays are fused automatically*.
 
   Our library has two types of arrays, `Pull` and `Push`, and all
