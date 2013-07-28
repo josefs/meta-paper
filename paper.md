@@ -1,4 +1,4 @@
-% An EDSL approach to High Performance Haskell programming
+% An EDSL Approach to High Performance Haskell programming
 % Johan Ankner; Josef Svenningsson
 %
 
